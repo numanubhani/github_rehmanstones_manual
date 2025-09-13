@@ -1,6 +1,8 @@
+// src/pages/Checkout.tsx
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import toast from "react-hot-toast";
 
 /* -------------------- Types & helpers -------------------- */
 type Form = {
@@ -108,7 +110,7 @@ export default function Checkout() {
       const orderId = `RS-${Date.now().toString().slice(-8)}`;
       const order = {
         id: orderId,
-        status: "PLACED",
+        status: "PLACED" as const,
         createdAt: new Date().toISOString(),
         customer: {
           name: form.name,
@@ -133,7 +135,7 @@ export default function Checkout() {
                 accountNumber: BANK.accountNumber,
                 accountTitle: BANK.accountTitle,
                 txnRef: txnRef || null,
-                proofDataUrl: proofPreview, // saved for demo only (backend later)
+                proofDataUrl: proofPreview, // demo only; backend later
               }
             : {}),
         },
@@ -142,7 +144,12 @@ export default function Checkout() {
       const existing = readOrders();
       existing.push(order);
       writeOrders(existing);
+
       clear();
+
+      // ✅ Toast on success (bottom-right from <Toaster />)
+      toast.success(`Order placed successfully! Tracking ID: ${orderId}`);
+
       navigate(`/track?id=${orderId}`);
     } finally {
       setPlacing(false);

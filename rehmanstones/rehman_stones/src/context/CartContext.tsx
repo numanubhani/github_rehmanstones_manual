@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+// NEW
+import toast from "react-hot-toast";
 
 export type CartItem = {
   id: string | number;
@@ -47,16 +49,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
         return [...prev, { ...item, qty }];
       });
+
+      // Toast confirmation
+      toast.success(`${item.name} added to cart${qty > 1 ? ` ×${qty}` : ""}`);
     };
+
     const removeItem = (id: CartItem["id"]) =>
       setItems((prev) => prev.filter((p) => p.id !== id));
+
     const setQty = (id: CartItem["id"], qty: number) =>
       setItems((prev) =>
         prev.map((p) => (p.id === id ? { ...p, qty: Math.max(1, qty) } : p))
       );
+
     const clear = () => setItems([]);
+
     const totalQty = items.reduce((s, p) => s + p.qty, 0);
     const totalPrice = items.reduce((s, p) => s + p.qty * p.price, 0);
+
     return { items, addItem, removeItem, setQty, clear, totalQty, totalPrice };
   }, [items]);
 
