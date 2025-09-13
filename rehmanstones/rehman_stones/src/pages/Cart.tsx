@@ -2,6 +2,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import toast from "react-hot-toast";
+import {
+  applyCoupon,
+  readAppliedCoupon,
+  saveAppliedCoupon,
+  itemsSubtotal,
+  getCoupon,
+} from "../utils/coupons";
 
 const ORANGE = "#D8791F";
 const formatRs = (n: number) => `Rs. ${n.toLocaleString("en-PK")}`;
@@ -24,13 +32,16 @@ export default function Cart() {
     });
   }, [items]);
 
-  const allSelected = items.length > 0 && selected.size === items.length;
+  const selectedItems = useMemo(
+    () => items.filter((i) => selected.has(i.id)),
+    [items, selected]
+  );
 
+  const allSelected = items.length > 0 && selected.size === items.length;
   const toggleAll = () => {
     if (allSelected) setSelected(new Set());
     else setSelected(new Set(items.map((i) => i.id)));
   };
-
   const toggleOne = (id: number | string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -39,32 +50,52 @@ export default function Cart() {
     });
   };
 
-  const selectedItems = useMemo(
-    () => items.filter((i) => selected.has(i.id)),
-    [items, selected]
-  );
+  // Coupon state
+  const [couponInput, setCouponInput] = useState(readAppliedCoupon() ?? "");
+  const appliedCode = readAppliedCoupon();
+  const appliedCoupon = appliedCode ? getCoupon(appliedCode) : null;
 
-  // Voucher (front-end demo only)
-  const [voucher, setVoucher] = useState("");
-  const [discountPct, setDiscountPct] = useState(0);
-  const subtotal = selectedItems.reduce((s, i) => s + i.price * i.qty, 0);
-  const discount = Math.round((subtotal * discountPct) / 100);
-  const shippingFee = 0;
+  // money
+  const subtotal = itemsSubtotal(selectedItems);
+  const shippingFee = 0; // update if you want paid shipping
+  const { discount, discountLabel } = useMemo(() => {
+    if (!appliedCode) return { discount: 0, discountLabel: "" };
+    const res = applyCoupon(selectedItems, appliedCode);
+    if (res.ok) {
+      const label = `${res.coupon.code} • ${res.coupon.label}`;
+      return { discount: res.discount, discountLabel: label };
+    }
+    return { discount: 0, discountLabel: "" };
+  }, [selectedItems, appliedCode]);
+
   const total = Math.max(0, subtotal - discount + shippingFee);
   const totalQty = selectedItems.reduce((s, i) => s + i.qty, 0);
 
-  const applyVoucher = () => {
-    const code = voucher.trim().toUpperCase();
-    if (code === "SAVE10") setDiscountPct(10);
-    else if (code === "SAVE5") setDiscountPct(5);
-    else setDiscountPct(0);
-  };
+  function onApplyCoupon() {
+    const code = couponInput.trim();
+    if (!code) return;
+
+    const res = applyCoupon(selectedItems, code);
+    if (res.ok) {
+      saveAppliedCoupon(res.coupon.code);
+      toast.success(`Coupon applied: ${res.coupon.code}`);
+    } else {
+      saveAppliedCoupon(null);
+      toast.error(res.reason);
+    }
+  }
+
+  function onRemoveCoupon() {
+    saveAppliedCoupon(null);
+    setCouponInput("");
+    toast("Coupon removed", { icon: "✖️" });
+  }
 
   // Empty state
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+        <div className="bg-white p-8 text-center">
           <h1 className="text-2xl font-bold">Your cart is empty</h1>
           <p className="mt-2 text-gray-600">
             Browse our collections and add items to your cart.
@@ -85,8 +116,8 @@ export default function Cart() {
     <div className="max-w-7xl mx-auto px-4 py-6 grid gap-6 lg:grid-cols-[1fr_360px]">
       {/* LEFT: items list */}
       <div className="space-y-3">
-        {/* Top bar: select all + delete (no border, card style) */}
-        <div className="flex items-center justify-between bg-white rounded-lg shadow-sm px-4 py-3">
+        {/* Top bar: select all + delete */}
+        <div className="flex items-center justify-between bg-white px-4 py-3">
           <label className="flex items-center gap-3 select-none">
             <input
               type="checkbox"
@@ -101,6 +132,7 @@ export default function Cart() {
           <button
             className="text-gray-600 hover:text-black inline-flex items-center gap-2"
             onClick={() => {
+              // delete selected
               selectedItems.forEach((it) => removeItem(it.id));
             }}
             title="Delete selected"
@@ -116,14 +148,14 @@ export default function Cart() {
           </button>
         </div>
 
-        {/* Items as separate soft cards (no big borders) */}
-        <div className="space-y-3">
-          {items.map((it) => (
+        {/* Items */}
+        <div className="bg-white">
+          {items.map((it, idx) => (
             <div
               key={it.id}
-              className="bg-white rounded-lg shadow-sm px-4 py-4"
+              className={`px-4 ${idx !== items.length - 1 ? "border-b" : ""}`}
             >
-              <div className="grid grid-cols-[24px_80px_1fr_auto] gap-3 items-center">
+              <div className="grid grid-cols-[24px_80px_1fr_auto] gap-3 py-4 items-center">
                 {/* checkbox */}
                 <input
                   type="checkbox"
@@ -136,7 +168,7 @@ export default function Cart() {
                 <img
                   src={it.image}
                   alt={it.name}
-                  className="w-20 h-20 object-cover rounded-md"
+                  className="w-20 h-20 object-cover"
                 />
 
                 {/* title + meta + actions */}
@@ -197,14 +229,11 @@ export default function Cart() {
                   <div className="text-[20px] font-semibold text-[#F85606]">
                     {formatRs(it.price)}
                   </div>
-                  <div className="text-sm text-gray-400 line-through h-5">
-                    {/* old price placeholder */}
-                  </div>
 
-                  {/* qty control (use ring instead of border) */}
-                  <div className="mt-2 inline-flex items-center ring-1 ring-gray-200 rounded">
+                  {/* qty control */}
+                  <div className="mt-2 inline-flex items-center border">
                     <button
-                      className="w-8 h-8 grid place-items-center hover:bg-gray-50 rounded-l"
+                      className="w-8 h-8 grid place-items-center hover:bg-gray-50"
                       onClick={() => setQty(it.id, Math.max(1, it.qty - 1))}
                       aria-label="Decrease"
                     >
@@ -212,7 +241,7 @@ export default function Cart() {
                     </button>
                     <div className="w-10 text-center select-none">{it.qty}</div>
                     <button
-                      className="w-8 h-8 grid place-items-center hover:bg-gray-50 rounded-r"
+                      className="w-8 h-8 grid place-items-center hover:bg-gray-50"
                       onClick={() => setQty(it.id, it.qty + 1)}
                       aria-label="Increase"
                     >
@@ -238,7 +267,7 @@ export default function Cart() {
 
       {/* RIGHT: order summary */}
       <aside className="lg:sticky lg:top-20 h-fit">
-        <div className="bg-white rounded-lg shadow-sm p-5">
+        <div className="bg-white p-5">
           <h2 className="text-xl font-semibold">Order Summary</h2>
 
           <div className="mt-4 space-y-2">
@@ -246,30 +275,46 @@ export default function Cart() {
               label={`Subtotal (${totalQty} item${totalQty !== 1 ? "s" : ""})`}
               value={formatRs(subtotal)}
             />
-            <Row label="Shipping Fee" value={formatRs(0)} />
-            {discountPct > 0 && (
+            {discount > 0 && (
               <Row
-                label={`Discount (${discountPct}%)`}
+                label={`Coupon${discountLabel ? ` (${discountLabel})` : ""}`}
                 value={`- ${formatRs(discount)}`}
               />
             )}
+            <Row label="Shipping Fee" value={formatRs(shippingFee)} />
           </div>
 
-          {/* Voucher */}
-          <div className="mt-4 flex gap-2">
-            <input
-              value={voucher}
-              onChange={(e) => setVoucher(e.target.value)}
-              placeholder="Enter Voucher Code"
-              className="flex-1 border px-3 py-2 outline-none rounded"
-            />
-            <button
-              onClick={applyVoucher}
-              className="px-4 py-2 text-white rounded"
-              style={{ background: "#5BA1DB" }}
-            >
-              APPLY
-            </button>
+          {/* Coupon UI */}
+          <div className="mt-4">
+            <label className="block text-sm text-gray-600 mb-1">
+              Coupon code
+            </label>
+            <div className="flex gap-2">
+              <input
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value)}
+                placeholder="e.g. SAVE10"
+                className="flex-1 border px-3 py-2 outline-none"
+              />
+              {!appliedCode ? (
+                <button
+                  onClick={onApplyCoupon}
+                  className="px-4 py-2 text-white"
+                  style={{ background: "#5BA1DB" }}
+                >
+                  APPLY
+                </button>
+              ) : (
+                <button onClick={onRemoveCoupon} className="px-4 py-2 border">
+                  Remove
+                </button>
+              )}
+            </div>
+            {appliedCoupon && (
+              <p className="mt-2 text-xs text-gray-500">
+                Applied: <b>{appliedCoupon.code}</b> — {appliedCoupon.label}
+              </p>
+            )}
           </div>
 
           {/* Total */}
@@ -282,8 +327,8 @@ export default function Cart() {
 
           {/* Checkout */}
           <button
-            className="mt-5 w-full py-3 text-white font-semibold rounded"
-            style={{ background: "#D8791F" }}
+            className="mt-5 w-full py-3 text-white font-semibold"
+            style={{ background: ORANGE }}
             onClick={() => navigate("/checkout")}
           >
             PROCEED TO CHECKOUT ({totalQty})

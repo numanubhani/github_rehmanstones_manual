@@ -3,6 +3,13 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
+import {
+  applyCoupon,
+  readAppliedCoupon,
+  saveAppliedCoupon,
+  itemsSubtotal,
+  getCoupon,
+} from "../utils/coupons";
 
 /* -------------------- Types & helpers -------------------- */
 type Form = {
@@ -43,6 +50,7 @@ async function fileToDataUrl(file: File): Promise<string> {
 async function copy(text: string) {
   try {
     await navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   } catch {}
 }
 
@@ -64,14 +72,21 @@ export default function Checkout() {
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
   const [txnRef, setTxnRef] = useState("");
+  const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
 
-  const subtotal = useMemo(
-    () => items.reduce((s, i) => s + i.price * i.qty, 0),
-    [items]
-  );
+  // Coupon from cart (if any)
+  const appliedCode = readAppliedCoupon();
+  const appliedCoupon = appliedCode ? getCoupon(appliedCode) : null;
+
+  const subtotal = useMemo(() => itemsSubtotal(items), [items]);
   const shipping = 0;
-  const total = subtotal + shipping;
+  const discount = useMemo(() => {
+    if (!appliedCode) return 0;
+    const res = applyCoupon(items, appliedCode);
+    return res.ok ? res.discount : 0;
+  }, [items, appliedCode]);
+  const total = Math.max(0, subtotal - discount + shipping);
 
   function handleChange<K extends keyof Form>(key: K, v: Form[K]) {
     setForm((f) => ({ ...f, [key]: v }));
@@ -79,6 +94,7 @@ export default function Checkout() {
 
   async function handleProofChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] || null;
+    setProofFile(f);
     if (f) {
       const url = await fileToDataUrl(f);
       setProofPreview(url);
@@ -109,7 +125,7 @@ export default function Checkout() {
       const orderId = `RS-${Date.now().toString().slice(-8)}`;
       const order = {
         id: orderId,
-        status: "PLACED" as const,
+        status: "PLACED",
         createdAt: new Date().toISOString(),
         customer: {
           name: form.name,
@@ -123,9 +139,13 @@ export default function Checkout() {
           image: it.image,
           qty: it.qty,
           price: it.price,
+          category: it.category,
         })),
         shippingFee: shipping,
         note,
+        coupon: appliedCoupon
+          ? { code: appliedCoupon.code, label: appliedCoupon.label, discount }
+          : null,
         payment: {
           method: paymentMethod,
           ...(paymentMethod === "ONLINE"
@@ -134,7 +154,7 @@ export default function Checkout() {
                 accountNumber: BANK.accountNumber,
                 accountTitle: BANK.accountTitle,
                 txnRef: txnRef || null,
-                proofDataUrl: proofPreview, // demo only; backend later
+                proofDataUrl: proofPreview,
               }
             : {}),
         },
@@ -143,12 +163,9 @@ export default function Checkout() {
       const existing = readOrders();
       existing.push(order);
       writeOrders(existing);
-
       clear();
-
-      // Toast on success (bottom-right from <Toaster /> in main.tsx)
+      saveAppliedCoupon(null); // clear coupon after placing order
       toast.success(`Order placed successfully! Tracking ID: ${orderId}`);
-
       navigate(`/track?id=${orderId}`);
     } finally {
       setPlacing(false);
@@ -160,7 +177,7 @@ export default function Checkout() {
       <div className="max-w-7xl mx-auto px-4 py-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         {/* LEFT: form */}
         <form onSubmit={placeOrder} className="space-y-4">
-          <div className="bg-white p-5 rounded-lg shadow-sm">
+          <div className="bg-white p-5">
             <h1 className="text-2xl font-bold">Checkout</h1>
             <p className="text-gray-500">
               Enter your shipping details & payment method.
@@ -168,7 +185,7 @@ export default function Checkout() {
           </div>
 
           {/* Shipping details */}
-          <div className="bg-white p-5 rounded-lg shadow-sm space-y-4">
+          <div className="bg-white p-5 space-y-4">
             <Field
               label="Full name *"
               value={form.name}
@@ -207,7 +224,7 @@ export default function Checkout() {
           </div>
 
           {/* Payment method */}
-          <div className="bg-white p-5 rounded-lg shadow-sm space-y-4">
+          <div className="bg-white p-5 space-y-4">
             <h2 className="font-semibold">Payment</h2>
 
             <label className="flex items-start gap-3 cursor-pointer">
@@ -245,7 +262,7 @@ export default function Checkout() {
             </label>
 
             {paymentMethod === "ONLINE" && (
-              <div className="mt-3 p-4 rounded-lg bg-gray-50">
+              <div className="mt-3 border p-4 bg-gray-50">
                 <h3 className="font-medium">Bank Details</h3>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <InfoRow label="Bank" value={BANK.name} />
@@ -284,9 +301,8 @@ export default function Checkout() {
                     className="mt-1 block w-full text-sm"
                   />
                   {proofPreview && (
-                    <div className="mt-3 bg-white p-2 rounded-lg shadow-sm">
+                    <div className="mt-3 border bg-white p-2">
                       <div className="text-xs text-gray-600 mb-1">Preview</div>
-                      {/* If image, show image; if pdf, show link */}
                       {proofPreview.startsWith("data:image") ? (
                         <img
                           src={proofPreview}
@@ -297,7 +313,6 @@ export default function Checkout() {
                         <a
                           href={proofPreview}
                           target="_blank"
-                          rel="noreferrer"
                           className="underline text-blue-600"
                         >
                           View uploaded file
@@ -317,7 +332,7 @@ export default function Checkout() {
           </div>
 
           {/* Submit bar */}
-          <div className="bg-white p-5 rounded-lg shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 flex items-center justify-between">
             <div>
               <div className="text-gray-600 text-sm">Total</div>
               <div className="text-xl font-semibold">
@@ -337,7 +352,7 @@ export default function Checkout() {
 
         {/* RIGHT: summary */}
         <aside className="space-y-4">
-          <div className="bg-white p-5 rounded-lg shadow-sm">
+          <div className="bg-white p-5">
             <h2 className="font-semibold">Order Summary</h2>
             <div className="mt-3 space-y-3">
               {items.length === 0 && (
@@ -348,7 +363,7 @@ export default function Checkout() {
                   <img
                     src={it.image}
                     alt={it.name}
-                    className="w-14 h-14 object-cover rounded-md bg-gray-100"
+                    className="w-14 h-14 object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <div
@@ -372,12 +387,17 @@ export default function Checkout() {
               ))}
             </div>
 
-            {/* Totals (no divider line) */}
-            <div className="mt-4 pt-3 space-y-1 text-sm">
+            <div className="mt-4 border-t pt-3 space-y-1 text-sm">
               <Row
                 label="Subtotal"
                 value={`Rs. ${subtotal.toLocaleString("en-PK")}`}
               />
+              {appliedCoupon && discount > 0 && (
+                <Row
+                  label={`Coupon (${appliedCoupon.code})`}
+                  value={`- Rs. ${discount.toLocaleString("en-PK")}`}
+                />
+              )}
               <Row
                 label="Shipping"
                 value={`Rs. ${shipping.toLocaleString("en-PK")}`}
@@ -389,7 +409,7 @@ export default function Checkout() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-lg shadow-sm text-sm text-gray-600">
+          <div className="bg-white p-5 text-sm text-gray-600">
             <h3 className="font-semibold mb-2">Secure checkout</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>SSL encryption</li>
@@ -464,6 +484,3 @@ function InfoRow({
     </div>
   );
 }
-
-
-
