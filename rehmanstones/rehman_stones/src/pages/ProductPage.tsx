@@ -14,7 +14,7 @@ export default function ProductPage() {
   const { id } = useParams();
   const product = getProductById(id!);
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, items } = useCart(); // <-- pull items too
 
   if (!product) {
     return (
@@ -34,6 +34,14 @@ export default function ProductPage() {
   const isRing = product.category === "ring";
   const [size, setSize] = useState<number | null>(null);
   const sizeRequired = isRing && size == null;
+
+  // helper: get variant id & name (adds size for rings)
+  const variant = (qty: number) => {
+    const variantId = isRing && size ? `${product.id}-s${size}` : product.id;
+    const nameWithSize =
+      isRing && size ? `${product.name} (Size ${size})` : product.name;
+    return { variantId, nameWithSize, qty };
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -186,13 +194,10 @@ export default function ProductPage() {
               <QtyAndActions
                 disabled={sizeRequired}
                 onAdd={(qty) => {
-                  const nameWithSize =
-                    isRing && size
-                      ? `${product.name} (Size ${size})`
-                      : product.name;
+                  const { variantId, nameWithSize } = variant(qty);
                   addItem(
                     {
-                      id: product.id,
+                      id: variantId,
                       name: nameWithSize,
                       price: product.price,
                       image: product.images[0],
@@ -202,20 +207,22 @@ export default function ProductPage() {
                   );
                 }}
                 onBuyNow={(qty) => {
-                  const nameWithSize =
-                    isRing && size
-                      ? `${product.name} (Size ${size})`
-                      : product.name;
-                  addItem(
-                    {
-                      id: product.id,
-                      name: nameWithSize,
-                      price: product.price,
-                      image: product.images[0],
-                      category: product.category,
-                    },
-                    qty
-                  );
+                  const { variantId, nameWithSize } = variant(qty);
+                  const exists = items.find((i) => i.id === variantId);
+
+                  if (!exists) {
+                    // only add if not already in cart
+                    addItem(
+                      {
+                        id: variantId,
+                        name: nameWithSize,
+                        price: product.price,
+                        image: product.images[0],
+                        category: product.category,
+                      },
+                      qty
+                    );
+                  }
                   navigate("/cart");
                 }}
               />
@@ -520,7 +527,7 @@ function IconRow({
 }) {
   const path =
     icon === "truck"
-      ? "M3 7h10v6H3zM13 9h4l3 3v1h-7zM5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"
+      ? "M3 7h10v6H3zM13 9h4l3 3v1h-7zM5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"
       : icon === "shield"
       ? "M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"
       : "M3 12a9 9 0 1 1 2.64 6.36L3 21l.64-2.64A8.97 8.97 0 0 1 3 12Zm6-1h6v2H9v-2z";

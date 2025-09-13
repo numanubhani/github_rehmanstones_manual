@@ -1,3 +1,4 @@
+// src/pages/Cart.tsx
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -6,7 +7,7 @@ const ORANGE = "#D8791F";
 const formatRs = (n: number) => `Rs. ${n.toLocaleString("en-PK")}`;
 
 export default function Cart() {
-  const navigate = useNavigate(); // ✅ hook inside component
+  const navigate = useNavigate();
   const { items, setQty, removeItem, clear } = useCart();
 
   // selection state (defaults to all items selected)
@@ -53,7 +54,6 @@ export default function Cart() {
   const totalQty = selectedItems.reduce((s, i) => s + i.qty, 0);
 
   const applyVoucher = () => {
-    // Demo logic: SAVE10 => 10% off, SAVE5 => 5%
     const code = voucher.trim().toUpperCase();
     if (code === "SAVE10") setDiscountPct(10);
     else if (code === "SAVE5") setDiscountPct(5);
@@ -64,7 +64,7 @@ export default function Cart() {
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="border bg-white p-8 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
           <h1 className="text-2xl font-bold">Your cart is empty</h1>
           <p className="mt-2 text-gray-600">
             Browse our collections and add items to your cart.
@@ -85,8 +85,8 @@ export default function Cart() {
     <div className="max-w-7xl mx-auto px-4 py-6 grid gap-6 lg:grid-cols-[1fr_360px]">
       {/* LEFT: items list */}
       <div className="space-y-3">
-        {/* Top bar: select all + delete */}
-        <div className="flex items-center justify-between border bg-white px-4 py-3">
+        {/* Top bar: select all + delete (no border, card style) */}
+        <div className="flex items-center justify-between bg-white rounded-lg shadow-sm px-4 py-3">
           <label className="flex items-center gap-3 select-none">
             <input
               type="checkbox"
@@ -101,7 +101,6 @@ export default function Cart() {
           <button
             className="text-gray-600 hover:text-black inline-flex items-center gap-2"
             onClick={() => {
-              // delete selected
               selectedItems.forEach((it) => removeItem(it.id));
             }}
             title="Delete selected"
@@ -117,14 +116,14 @@ export default function Cart() {
           </button>
         </div>
 
-        {/* Items */}
-        <div className="border bg-white">
-          {items.map((it, idx) => (
+        {/* Items as separate soft cards (no big borders) */}
+        <div className="space-y-3">
+          {items.map((it) => (
             <div
               key={it.id}
-              className={`px-4 ${idx !== items.length - 1 ? "border-b" : ""}`}
+              className="bg-white rounded-lg shadow-sm px-4 py-4"
             >
-              <div className="grid grid-cols-[24px_80px_1fr_auto] gap-3 py-4 items-center">
+              <div className="grid grid-cols-[24px_80px_1fr_auto] gap-3 items-center">
                 {/* checkbox */}
                 <input
                   type="checkbox"
@@ -137,7 +136,7 @@ export default function Cart() {
                 <img
                   src={it.image}
                   alt={it.name}
-                  className="w-20 h-20 object-cover border"
+                  className="w-20 h-20 object-cover rounded-md"
                 />
 
                 {/* title + meta + actions */}
@@ -199,13 +198,13 @@ export default function Cart() {
                     {formatRs(it.price)}
                   </div>
                   <div className="text-sm text-gray-400 line-through h-5">
-                    {/* old price placeholder if you have it */}
+                    {/* old price placeholder */}
                   </div>
 
-                  {/* qty control */}
-                  <div className="mt-2 inline-flex items-center border">
+                  {/* qty control (use ring instead of border) */}
+                  <div className="mt-2 inline-flex items-center ring-1 ring-gray-200 rounded">
                     <button
-                      className="w-8 h-8 grid place-items-center hover:bg-gray-50"
+                      className="w-8 h-8 grid place-items-center hover:bg-gray-50 rounded-l"
                       onClick={() => setQty(it.id, Math.max(1, it.qty - 1))}
                       aria-label="Decrease"
                     >
@@ -213,7 +212,7 @@ export default function Cart() {
                     </button>
                     <div className="w-10 text-center select-none">{it.qty}</div>
                     <button
-                      className="w-8 h-8 grid place-items-center hover:bg-gray-50"
+                      className="w-8 h-8 grid place-items-center hover:bg-gray-50 rounded-r"
                       onClick={() => setQty(it.id, it.qty + 1)}
                       aria-label="Increase"
                     >
@@ -239,7 +238,7 @@ export default function Cart() {
 
       {/* RIGHT: order summary */}
       <aside className="lg:sticky lg:top-20 h-fit">
-        <div className="border bg-white p-5">
+        <div className="bg-white rounded-lg shadow-sm p-5">
           <h2 className="text-xl font-semibold">Order Summary</h2>
 
           <div className="mt-4 space-y-2">
@@ -262,11 +261,11 @@ export default function Cart() {
               value={voucher}
               onChange={(e) => setVoucher(e.target.value)}
               placeholder="Enter Voucher Code"
-              className="flex-1 border px-3 py-2 outline-none"
+              className="flex-1 border px-3 py-2 outline-none rounded"
             />
             <button
               onClick={applyVoucher}
-              className="px-4 py-2 text-white"
+              className="px-4 py-2 text-white rounded"
               style={{ background: "#5BA1DB" }}
             >
               APPLY
@@ -283,7 +282,7 @@ export default function Cart() {
 
           {/* Checkout */}
           <button
-            className="mt-5 w-full py-3 text-white font-semibold"
+            className="mt-5 w-full py-3 text-white font-semibold rounded"
             style={{ background: "#D8791F" }}
             onClick={() => navigate("/checkout")}
           >
