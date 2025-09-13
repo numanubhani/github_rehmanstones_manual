@@ -209,7 +209,7 @@ export default function Track() {
           />
           <button
             onClick={() => handleSearch()}
-            className="px-4 py-2 bg-black text-white"
+            className="px-4 py-2 bg-black text-white rounded"
           >
             Track
           </button>
@@ -217,9 +217,10 @@ export default function Track() {
 
         {/* Not found */}
         {notFound && (
-          <div className="mt-4 border bg-white p-4 text-red-600">
+          <div className="mt-4 rounded-lg bg-red-50 p-4 text-red-700">
             No order found for <b>{params.get("id")}</b>. Try{" "}
-            <code className="bg-gray-100 px-1">RS-DEMO-1001</code> for demo.
+            <code className="bg-white/70 px-1 rounded">RS-DEMO-1001</code> for
+            demo.
           </div>
         )}
 
@@ -227,17 +228,17 @@ export default function Track() {
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             {/* LEFT: status + timeline */}
             <div className="space-y-4">
-              <div className="border bg-white p-5">
+              <div className="bg-white p-5 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-sm text-gray-500">Order</div>
                     <div className="text-lg font-semibold">#{order.id}</div>
                   </div>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs border bg-white ${
+                    className={`px-2 py-1 rounded-full text-xs bg-white ${
                       order.status === "CANCELLED"
-                        ? "text-red-600 border-red-300"
-                        : "text-gray-700"
+                        ? "text-red-600 ring-1 ring-red-300"
+                        : "text-gray-700 ring-1 ring-gray-200"
                     }`}
                   >
                     {statusLabel(order.status)}
@@ -286,7 +287,7 @@ export default function Track() {
                     order.status !== "CANCELLED" && (
                       <button
                         onClick={advanceStatus}
-                        className="mt-4 px-3 py-1.5 text-sm border rounded hover:bg-gray-50"
+                        className="mt-4 px-3 py-1.5 text-sm rounded hover:bg-gray-50 ring-1 ring-gray-200"
                         title="Demo only: simulate next status"
                       >
                         Advance status (demo)
@@ -298,7 +299,7 @@ export default function Track() {
 
             {/* RIGHT: order details */}
             <aside className="space-y-4">
-              <div className="border bg-white p-5">
+              <div className="bg-white p-5 rounded-lg shadow-sm">
                 <h3 className="font-semibold">Shipping details</h3>
                 <div className="mt-2 text-sm text-gray-700">
                   <div className="font-medium">{order.customer.name}</div>
@@ -309,7 +310,7 @@ export default function Track() {
                 </div>
               </div>
 
-              <div className="border bg-white p-5">
+              <div className="bg-white p-5 rounded-lg shadow-sm">
                 <h3 className="font-semibold">Items</h3>
                 <div className="mt-3 space-y-3">
                   {order.items.map((it) => (
@@ -317,7 +318,7 @@ export default function Track() {
                       <img
                         src={it.image}
                         alt={it.name}
-                        className="w-14 h-14 object-cover border"
+                        className="w-14 h-14 object-cover rounded-md bg-gray-100"
                       />
                       <div className="min-w-0 flex-1">
                         <div
@@ -343,7 +344,8 @@ export default function Track() {
                   ))}
                 </div>
 
-                <div className="mt-4 border-t pt-3 space-y-1 text-sm">
+                {/* Totals (no divider line) */}
+                <div className="mt-4 pt-3 space-y-1 text-sm">
                   <Row
                     label="Subtotal"
                     value={`Rs. ${subtotal.toLocaleString("en-PK")}`}
@@ -374,9 +376,9 @@ function Stepper({ status }: { status: Status }) {
   return (
     <div className="mt-5">
       <div className="relative">
-        <div className="h-1 bg-gray-200" />
+        <div className="h-1 bg-gray-200 rounded" />
         <div
-          className="absolute top-0 h-1 bg-black transition-all"
+          className="absolute top-0 h-1 bg-black rounded transition-all"
           style={{
             width: `${(safeCurrent / (STATUS_STEPS.length - 1)) * 100}%`,
           }}
@@ -386,8 +388,10 @@ function Stepper({ status }: { status: Status }) {
         {STATUS_STEPS.map((s, i) => (
           <div key={s} className="flex flex-col items-center">
             <span
-              className={`w-6 h-6 grid place-items-center rounded-full border text-[11px] ${
-                i <= current ? "bg-black text-white border-black" : "bg-white"
+              className={`w-6 h-6 grid place-items-center rounded-full text-[11px] ring-1 ${
+                i <= current
+                  ? "bg-black text-white ring-black"
+                  : "bg-white ring-gray-200"
               }`}
             >
               {i + 1}

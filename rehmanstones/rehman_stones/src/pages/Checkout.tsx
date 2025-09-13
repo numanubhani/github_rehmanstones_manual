@@ -80,7 +80,6 @@ export default function Checkout() {
   async function handleProofChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] || null;
     if (f) {
-      // keep small images if possible; localStorage has limits (~5MB)
       const url = await fileToDataUrl(f);
       setProofPreview(url);
     } else {
@@ -147,7 +146,7 @@ export default function Checkout() {
 
       clear();
 
-      // ✅ Toast on success (bottom-right from <Toaster />)
+      // Toast on success (bottom-right from <Toaster /> in main.tsx)
       toast.success(`Order placed successfully! Tracking ID: ${orderId}`);
 
       navigate(`/track?id=${orderId}`);
@@ -161,7 +160,7 @@ export default function Checkout() {
       <div className="max-w-7xl mx-auto px-4 py-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         {/* LEFT: form */}
         <form onSubmit={placeOrder} className="space-y-4">
-          <div className="border bg-white p-5">
+          <div className="bg-white p-5 rounded-lg shadow-sm">
             <h1 className="text-2xl font-bold">Checkout</h1>
             <p className="text-gray-500">
               Enter your shipping details & payment method.
@@ -169,7 +168,7 @@ export default function Checkout() {
           </div>
 
           {/* Shipping details */}
-          <div className="border bg-white p-5 space-y-4">
+          <div className="bg-white p-5 rounded-lg shadow-sm space-y-4">
             <Field
               label="Full name *"
               value={form.name}
@@ -208,7 +207,7 @@ export default function Checkout() {
           </div>
 
           {/* Payment method */}
-          <div className="border bg-white p-5 space-y-4">
+          <div className="bg-white p-5 rounded-lg shadow-sm space-y-4">
             <h2 className="font-semibold">Payment</h2>
 
             <label className="flex items-start gap-3 cursor-pointer">
@@ -246,7 +245,7 @@ export default function Checkout() {
             </label>
 
             {paymentMethod === "ONLINE" && (
-              <div className="mt-3 border p-4 bg-gray-50">
+              <div className="mt-3 p-4 rounded-lg bg-gray-50">
                 <h3 className="font-medium">Bank Details</h3>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <InfoRow label="Bank" value={BANK.name} />
@@ -285,7 +284,7 @@ export default function Checkout() {
                     className="mt-1 block w-full text-sm"
                   />
                   {proofPreview && (
-                    <div className="mt-3 border bg-white p-2">
+                    <div className="mt-3 bg-white p-2 rounded-lg shadow-sm">
                       <div className="text-xs text-gray-600 mb-1">Preview</div>
                       {/* If image, show image; if pdf, show link */}
                       {proofPreview.startsWith("data:image") ? (
@@ -318,7 +317,7 @@ export default function Checkout() {
           </div>
 
           {/* Submit bar */}
-          <div className="border bg-white p-5 flex items-center justify-between">
+          <div className="bg-white p-5 rounded-lg shadow-sm flex items-center justify-between">
             <div>
               <div className="text-gray-600 text-sm">Total</div>
               <div className="text-xl font-semibold">
@@ -338,7 +337,7 @@ export default function Checkout() {
 
         {/* RIGHT: summary */}
         <aside className="space-y-4">
-          <div className="border bg-white p-5">
+          <div className="bg-white p-5 rounded-lg shadow-sm">
             <h2 className="font-semibold">Order Summary</h2>
             <div className="mt-3 space-y-3">
               {items.length === 0 && (
@@ -349,7 +348,7 @@ export default function Checkout() {
                   <img
                     src={it.image}
                     alt={it.name}
-                    className="w-14 h-14 object-cover border"
+                    className="w-14 h-14 object-cover rounded-md bg-gray-100"
                   />
                   <div className="min-w-0 flex-1">
                     <div
@@ -373,7 +372,8 @@ export default function Checkout() {
               ))}
             </div>
 
-            <div className="mt-4 border-t pt-3 space-y-1 text-sm">
+            {/* Totals (no divider line) */}
+            <div className="mt-4 pt-3 space-y-1 text-sm">
               <Row
                 label="Subtotal"
                 value={`Rs. ${subtotal.toLocaleString("en-PK")}`}
@@ -389,7 +389,7 @@ export default function Checkout() {
             </div>
           </div>
 
-          <div className="border bg-white p-5 text-sm text-gray-600">
+          <div className="bg-white p-5 rounded-lg shadow-sm text-sm text-gray-600">
             <h3 className="font-semibold mb-2">Secure checkout</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>SSL encryption</li>

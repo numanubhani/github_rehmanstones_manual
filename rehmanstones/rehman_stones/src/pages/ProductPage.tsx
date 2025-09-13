@@ -20,13 +20,20 @@ export default function ProductPage() {
     return (
       <div className="bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 py-10">
-          <div className="border bg-white p-8">Product not found.</div>
+          <div className="bg-white p-8 rounded-lg shadow-sm">
+            Product not found.
+          </div>
         </div>
       </div>
     );
   }
 
   const related = useMemo(() => getRelated(product), [product]);
+
+  // --- size state (only for rings) ---
+  const isRing = product.category === "ring";
+  const [size, setSize] = useState<number | null>(null);
+  const sizeRequired = isRing && size == null;
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -52,7 +59,7 @@ export default function ProductPage() {
           <Gallery product={product} />
 
           {/* INFO + ACTIONS */}
-          <section className="lg:col-span-7 border bg-white p-6">
+          <section className="lg:col-span-7 bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-2xl md:text-3xl font-semibold leading-snug text-gray-900">
                 {product.name}
@@ -127,8 +134,8 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* promo strip */}
-            <div className="mt-5 rounded-sm bg-gradient-to-r from-orange-50 to-amber-50 border text-amber-800 px-4 py-3">
+            {/* promo strip (no border) */}
+            <div className="mt-5 rounded-sm bg-gradient-to-r from-orange-50 to-amber-50 text-amber-800 px-4 py-3">
               Free shipping on orders over <b>Rs. 10,000</b>. Easy 7-day
               returns.
             </div>
@@ -158,15 +165,35 @@ export default function ProductPage() {
               )}
             </div>
 
+            {/* size selector (rings only) */}
+            {isRing && (
+              <div className="mt-6">
+                <div className="text-sm font-medium text-gray-800 mb-2">
+                  Select Size
+                </div>
+                <SizeGrid selected={size} onSelect={setSize} />
+                {sizeRequired && (
+                  <div className="mt-2 text-xs text-red-600">
+                    Please select a size.
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* quantity + actions */}
             <div className="mt-6">
               <div className="text-sm text-gray-600 mb-2">Quantity</div>
               <QtyAndActions
+                disabled={sizeRequired}
                 onAdd={(qty) => {
+                  const nameWithSize =
+                    isRing && size
+                      ? `${product.name} (Size ${size})`
+                      : product.name;
                   addItem(
                     {
                       id: product.id,
-                      name: product.name,
+                      name: nameWithSize,
                       price: product.price,
                       image: product.images[0],
                       category: product.category,
@@ -175,10 +202,14 @@ export default function ProductPage() {
                   );
                 }}
                 onBuyNow={(qty) => {
+                  const nameWithSize =
+                    isRing && size
+                      ? `${product.name} (Size ${size})`
+                      : product.name;
                   addItem(
                     {
                       id: product.id,
-                      name: product.name,
+                      name: nameWithSize,
                       price: product.price,
                       image: product.images[0],
                       category: product.category,
@@ -198,7 +229,7 @@ export default function ProductPage() {
           </section>
 
           {/* DETAILS */}
-          <section className="lg:col-span-8 border bg-white p-6">
+          <section className="lg:col-span-8 bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold">
               Product details of {shorten(product.name)}
             </h2>
@@ -242,7 +273,7 @@ export default function ProductPage() {
 
           {/* REVIEWS + Q&A */}
           <section className="lg:col-span-8 space-y-6">
-            <div className="border bg-white p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold">Ratings & Reviews</h2>
               <div className="mt-4 grid sm:grid-cols-2 gap-6">
                 <div className="text-4xl font-bold">0/5</div>
@@ -264,7 +295,7 @@ export default function ProductPage() {
               </div>
             </div>
 
-            <div className="border bg-white p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold">
                 Questions about this product
               </h2>
@@ -294,12 +325,12 @@ export default function ProductPage() {
                 <Link
                   key={p.id}
                   to={`/product/${p.id}`}
-                  className="border bg-white hover:shadow"
+                  className="bg-white rounded-lg shadow-sm hover:shadow p-0"
                 >
                   <img
                     src={p.images[0]}
                     alt={p.name}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-40 object-cover rounded-t-lg"
                   />
                   <div className="p-3">
                     <div
@@ -336,8 +367,8 @@ export default function ProductPage() {
 function Gallery({ product }: { product: Product }) {
   const [idx, setIdx] = useState(0);
   return (
-    <section className="lg:col-span-5 border bg-white p-3">
-      <div className="border bg-gray-50 h-[380px] sm:h-[420px] grid place-items-center overflow-hidden">
+    <section className="lg:col-span-5 bg-white rounded-lg shadow-sm p-3">
+      <div className="bg-gray-50 h-[380px] sm:h-[420px] grid place-items-center overflow-hidden rounded-md">
         <img
           src={product.images[idx]}
           alt={product.name}
@@ -349,9 +380,10 @@ function Gallery({ product }: { product: Product }) {
           <button
             key={i}
             onClick={() => setIdx(i)}
-            className={`border w-16 h-16 shrink-0 overflow-hidden ${
-              i === idx ? "ring-2 ring-gray-900" : ""
+            className={`w-16 h-16 shrink-0 overflow-hidden rounded-md ${
+              i === idx ? "ring-2 ring-gray-900" : "ring-1 ring-transparent"
             }`}
+            aria-label={`Thumbnail ${i + 1}`}
           >
             <img src={src} alt="" className="w-full h-full object-cover" />
           </button>
@@ -383,28 +415,32 @@ function Stars({ value = 0 }: { value?: number }) {
 }
 
 function QtyAndActions({
+  disabled,
   onAdd,
   onBuyNow,
 }: {
+  disabled?: boolean;
   onAdd: (qty: number) => void;
   onBuyNow: (qty: number) => void;
 }) {
   const [qty, setQty] = useState(1);
   return (
     <div>
-      <div className="inline-flex items-center border">
+      <div className="inline-flex items-center ring-1 ring-gray-200 rounded">
         <button
-          className="w-9 h-9 grid place-items-center hover:bg-gray-50"
+          className="w-9 h-9 grid place-items-center hover:bg-gray-50 rounded-l"
           onClick={() => setQty((q) => Math.max(1, q - 1))}
           aria-label="Decrease quantity"
+          type="button"
         >
           –
         </button>
         <div className="w-12 text-center select-none">{qty}</div>
         <button
-          className="w-9 h-9 grid place-items-center hover:bg-gray-50"
+          className="w-9 h-9 grid place-items-center hover:bg-gray-50 rounded-r"
           onClick={() => setQty((q) => q + 1)}
           aria-label="Increase quantity"
+          type="button"
         >
           +
         </button>
@@ -412,16 +448,20 @@ function QtyAndActions({
 
       <div className="mt-4 flex flex-wrap gap-3">
         <button
-          className="px-6 py-3 font-semibold text-white"
+          className="px-6 py-3 font-semibold text-white disabled:opacity-60"
           style={{ background: BRAND_DARK }}
           onClick={() => onAdd(qty)}
+          disabled={disabled}
+          type="button"
         >
           Add to Cart
         </button>
         <button
-          className="px-6 py-3 font-semibold text-white"
+          className="px-6 py-3 font-semibold text-white disabled:opacity-60"
           style={{ background: BRAND_ACCENT }}
           onClick={() => onBuyNow(qty)}
+          disabled={disabled}
+          type="button"
         >
           Buy Now
         </button>
@@ -430,9 +470,42 @@ function QtyAndActions({
   );
 }
 
+function SizeGrid({
+  selected,
+  onSelect,
+}: {
+  selected: number | null;
+  onSelect: (v: number) => void;
+}) {
+  const sizes = Array.from({ length: 30 }, (_, i) => i + 11); // 11..40
+  return (
+    <div className="grid grid-cols-8 sm:grid-cols-10 gap-2">
+      {sizes.map((s) => {
+        const active = selected === s;
+        return (
+          <button
+            key={s}
+            type="button"
+            onClick={() => onSelect(s)}
+            className={`text-sm px-2 py-1 rounded-md transition ${
+              active
+                ? "bg-black text-white"
+                : "bg-white text-gray-800 ring-1 ring-gray-200 hover:bg-gray-50"
+            }`}
+            aria-pressed={active}
+            aria-label={`Select size ${s}`}
+          >
+            {s}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="px-2 py-0.5 rounded-full text-xs border bg-white text-gray-700">
+    <span className="px-2 py-0.5 rounded-full text-xs bg-white text-gray-700 ring-1 ring-gray-200">
       {children}
     </span>
   );
