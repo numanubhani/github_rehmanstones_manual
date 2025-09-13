@@ -118,8 +118,7 @@ function buildTimeline(order: Order): Required<Order>["timeline"] {
   return tl as Required<Order>["timeline"];
 }
 
-const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleString() : "--";
+const fmtDate = (iso?: string) => (iso ? new Date(iso).toLocaleString() : "--");
 
 export default function Track() {
   const [params, setParams] = useSearchParams();
@@ -234,7 +233,13 @@ export default function Track() {
                     <div className="text-sm text-gray-500">Order</div>
                     <div className="text-lg font-semibold">#{order.id}</div>
                   </div>
-                  <span className="px-2 py-1 rounded-full text-xs border bg-white text-gray-700">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs border bg-white ${
+                      order.status === "CANCELLED"
+                        ? "text-red-600 border-red-300"
+                        : "text-gray-700"
+                    }`}
+                  >
                     {statusLabel(order.status)}
                   </span>
                 </div>
@@ -262,10 +267,14 @@ export default function Track() {
                             }`}
                           />
                           <div>
-                            <div className={done ? "font-medium" : "text-gray-500"}>
+                            <div
+                              className={done ? "font-medium" : "text-gray-500"}
+                            >
                               {statusLabel(s)}
                             </div>
-                            <div className="text-gray-500">{fmtDate(tl[s])}</div>
+                            <div className="text-gray-500">
+                              {fmtDate(tl[s])}
+                            </div>
                           </div>
                         </li>
                       );
@@ -273,13 +282,16 @@ export default function Track() {
                   </ul>
 
                   {/* Demo-only: advance status */}
-                  <button
-                    onClick={advanceStatus}
-                    className="mt-4 px-3 py-1.5 text-sm border rounded hover:bg-gray-50"
-                    title="Demo only: simulate next status"
-                  >
-                    Advance status (demo)
-                  </button>
+                  {order.status !== "DELIVERED" &&
+                    order.status !== "CANCELLED" && (
+                      <button
+                        onClick={advanceStatus}
+                        className="mt-4 px-3 py-1.5 text-sm border rounded hover:bg-gray-50"
+                        title="Demo only: simulate next status"
+                      >
+                        Advance status (demo)
+                      </button>
+                    )}
                 </div>
               </div>
             </div>
@@ -320,7 +332,9 @@ export default function Track() {
                         >
                           {it.name}
                         </div>
-                        <div className="text-xs text-gray-500">Qty: {it.qty}</div>
+                        <div className="text-xs text-gray-500">
+                          Qty: {it.qty}
+                        </div>
                       </div>
                       <div className="font-medium">
                         Rs. {(it.price * it.qty).toLocaleString("en-PK")}
@@ -330,8 +344,14 @@ export default function Track() {
                 </div>
 
                 <div className="mt-4 border-t pt-3 space-y-1 text-sm">
-                  <Row label="Subtotal" value={`Rs. ${subtotal.toLocaleString("en-PK")}`} />
-                  <Row label="Shipping" value={`Rs. ${shipping.toLocaleString("en-PK")}`} />
+                  <Row
+                    label="Subtotal"
+                    value={`Rs. ${subtotal.toLocaleString("en-PK")}`}
+                  />
+                  <Row
+                    label="Shipping"
+                    value={`Rs. ${shipping.toLocaleString("en-PK")}`}
+                  />
                   <div className="flex items-center justify-between pt-1 font-semibold text-lg">
                     <span>Total</span>
                     <span>Rs. {total.toLocaleString("en-PK")}</span>
@@ -350,6 +370,7 @@ export default function Track() {
 
 function Stepper({ status }: { status: Status }) {
   const current = STATUS_STEPS.indexOf(status);
+  const safeCurrent = Math.max(0, Math.min(current, STATUS_STEPS.length - 1));
   return (
     <div className="mt-5">
       <div className="relative">
@@ -357,7 +378,7 @@ function Stepper({ status }: { status: Status }) {
         <div
           className="absolute top-0 h-1 bg-black transition-all"
           style={{
-            width: `${(current / (STATUS_STEPS.length - 1)) * 100}%`,
+            width: `${(safeCurrent / (STATUS_STEPS.length - 1)) * 100}%`,
           }}
         />
       </div>
@@ -392,8 +413,4 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="font-medium">{value}</span>
     </div>
   );
-}
-
-function shorten(s: string, n = 64) {
-  return s.length > n ? s.slice(0, n) + "…" : s;
 }

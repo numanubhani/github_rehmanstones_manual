@@ -1,14 +1,14 @@
+// src/pages/ProductPage.tsx
 import { useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById, getRelated } from "../data/products";
 import type { Product } from "../data/products";
 import { useCart } from "../context/CartContext";
 
-/** Brand palette (edit if you like) */
+/** Brand palette */
 const BRAND_DARK = "#111111"; // buttons / headings
 const BRAND_ACCENT = "#EB5E28"; // accent / CTAs (warm metallic)
 const PRICE = "#1F2937"; // slate-800
-const MUTED = "#6B7280"; // slate-500
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -162,7 +162,6 @@ export default function ProductPage() {
             <div className="mt-6">
               <div className="text-sm text-gray-600 mb-2">Quantity</div>
               <QtyAndActions
-                product={product}
                 onAdd={(qty) => {
                   addItem(
                     {
@@ -384,11 +383,9 @@ function Stars({ value = 0 }: { value?: number }) {
 }
 
 function QtyAndActions({
-  product,
   onAdd,
   onBuyNow,
 }: {
-  product: Product;
   onAdd: (qty: number) => void;
   onBuyNow: (qty: number) => void;
 }) {

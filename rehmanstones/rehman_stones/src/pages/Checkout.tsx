@@ -62,7 +62,6 @@ export default function Checkout() {
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
   const [txnRef, setTxnRef] = useState("");
-  const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
 
   const subtotal = useMemo(
@@ -78,7 +77,6 @@ export default function Checkout() {
 
   async function handleProofChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] || null;
-    setProofFile(f);
     if (f) {
       // keep small images if possible; localStorage has limits (~5MB)
       const url = await fileToDataUrl(f);
@@ -293,6 +291,7 @@ export default function Checkout() {
                         <a
                           href={proofPreview}
                           target="_blank"
+                          rel="noreferrer"
                           className="underline text-blue-600"
                         >
                           View uploaded file
