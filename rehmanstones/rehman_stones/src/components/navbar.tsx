@@ -1,46 +1,94 @@
+// src/components/navbar.tsx
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { useCart } from "../context/CartContext"; // <-- make sure you added the CartProvider I shared
+import InstallAppButton from "./InstallAppButton";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { totalQty } = useCart(); // live cart count
+  const { totalQty } = useCart();
 
-  const linkBase = "px-3 py-2 rounded transition-colors hover:bg-black/5";
-  const active = "bg-black text-white hover:bg-black";
+  const mainLinkBase =
+    "relative px-3 py-2 rounded-md text-sm font-medium transition-colors";
+  const mainLinkActive = "text-black bg-black/5";
+  const mainLinkIdle = "text-gray-700 hover:text-black hover:bg-black/5";
+
+  const actionLinkBase =
+    "px-3 py-2 rounded-md transition-colors hover:bg-black/5";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/10 bg-white/40 backdrop-blur-md">
-      <nav className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Left: Logo (text/image) */}
-        <Link
-          to="/"
-          className="text-2xl font-extrabold tracking-wide select-none"
-        >
-          Rehman Stones
-        </Link>
+    <header className="sticky top-0 z-50 bg-white/60 backdrop-blur-md border-b border-black/10">
+      <nav className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+        {/* Left: Brand */}
+        <div className="flex items-center gap-3 flex-1">
+          <Link
+            to="/"
+            className="text-2xl font-extrabold tracking-wide select-none"
+            aria-label="Rehman Stones — Home"
+          >
+            Rehman Stones
+          </Link>
 
-        {/* Right: desktop actions */}
+          {/* Center: Main nav (desktop) */}
+          <div className="hidden md:flex items-center gap-1 ml-4">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `${mainLinkBase} ${isActive ? mainLinkActive : mainLinkIdle}`
+              }
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/rings"
+              className={({ isActive }) =>
+                `${mainLinkBase} ${isActive ? mainLinkActive : mainLinkIdle}`
+              }
+            >
+              Rings
+            </NavLink>
+            <NavLink
+              to="/gemstones"
+              className={({ isActive }) =>
+                `${mainLinkBase} ${isActive ? mainLinkActive : mainLinkIdle}`
+              }
+            >
+              Gemstones
+            </NavLink>
+          </div>
+        </div>
+
+        {/* Right actions (desktop) */}
         <div className="hidden sm:flex items-center gap-2">
           <NavLink
             to="/track"
             className={({ isActive }) =>
-              `${linkBase} ${isActive ? "bg-black/10" : ""}`
+              `${actionLinkBase} ${isActive ? "bg-black/10" : ""}`
             }
           >
             Track Order
           </NavLink>
 
+          {/* Optional desktop Install button */}
+          <InstallAppButton />
+
           {/* Cart */}
           <NavLink
             to="/cart"
             className={({ isActive }) =>
-              `relative ${linkBase} ${isActive ? "bg-black/10" : ""}`
+              `relative ${actionLinkBase} ${isActive ? "bg-black/10" : ""}`
             }
             aria-label="Cart"
             title="Cart"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+            >
               <path
                 d="M6 6h15l-1.5 9h-12L5 3H2"
                 stroke="currentColor"
@@ -56,11 +104,12 @@ export default function Navbar() {
             )}
           </NavLink>
 
+          {/* Login CTA */}
           <NavLink
             to="/login"
             className={({ isActive }) =>
-              `${linkBase} ${
-                isActive ? active : "bg-black text-white hover:opacity-90"
+              `px-3 py-2 rounded-md text-white font-medium transition ${
+                isActive ? "bg-black/90" : "bg-black hover:opacity-90"
               }`
             }
           >
@@ -70,12 +119,18 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded border border-black/10 bg-white/40 backdrop-blur-md"
+          className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded border border-black/10 bg-white/60 backdrop-blur-md"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            fill="none"
+          >
             <path
               d="M4 7h16M4 12h16M4 17h16"
               stroke="currentColor"
@@ -87,16 +142,40 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="sm:hidden border-t border-black/10 bg-white/70 backdrop-blur-md">
-          <div className="px-4 py-2 flex flex-col">
+        <div className="sm:hidden border-t border-black/10 bg-white/80 backdrop-blur-md">
+          <div className="px-4 py-3 flex flex-col">
+            {/* Main nav (mobile) */}
+            <NavLink
+              to="/"
+              end
+              className="px-3 py-2 rounded hover:bg-black/5"
+              onClick={() => setOpen(false)}
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/rings"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
+              onClick={() => setOpen(false)}
+            >
+              Rings
+            </NavLink>
+            <NavLink
+              to="/gemstones"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
+              onClick={() => setOpen(false)}
+            >
+              Gemstones
+            </NavLink>
+
+            {/* Actions */}
             <NavLink
               to="/track"
-              className="px-3 py-2 rounded hover:bg-black/5"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
               onClick={() => setOpen(false)}
             >
               Track Order
             </NavLink>
-
             <NavLink
               to="/cart"
               className="mt-1 px-3 py-2 rounded hover:bg-black/5"
@@ -110,9 +189,13 @@ export default function Navbar() {
               )}
             </NavLink>
 
+            {/* Install App (mobile) */}
+            <InstallAppButton className="mt-2" />
+
+            {/* Login */}
             <NavLink
               to="/login"
-              className="mt-1 px-3 py-2 rounded bg-black text-white hover:opacity-90"
+              className="mt-2 px-3 py-2 rounded bg-black text-white text-center hover:opacity-90"
               onClick={() => setOpen(false)}
             >
               Login
