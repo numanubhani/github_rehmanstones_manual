@@ -1,4 +1,3 @@
-// src/pages/Cart.tsx
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -50,14 +49,18 @@ export default function Cart() {
     });
   };
 
-  // Coupon state
+  /* ---------------- Coupon state (with inline error) ---------------- */
   const [couponInput, setCouponInput] = useState(readAppliedCoupon() ?? "");
-  const appliedCode = readAppliedCoupon();
+  const [appliedCode, setAppliedCode] = useState<string | null>(() =>
+    readAppliedCoupon()
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
   const appliedCoupon = appliedCode ? getCoupon(appliedCode) : null;
 
-  // money
+  // Money
   const subtotal = itemsSubtotal(selectedItems);
-  const shippingFee = 0; // update if you want paid shipping
+  const shippingFee = 0;
+
   const { discount, discountLabel } = useMemo(() => {
     if (!appliedCode) return { discount: 0, discountLabel: "" };
     const res = applyCoupon(selectedItems, appliedCode);
@@ -73,23 +76,45 @@ export default function Cart() {
 
   function onApplyCoupon() {
     const code = couponInput.trim();
-    if (!code) return;
-
+    if (!code) {
+      setCouponError("Please enter a coupon code.");
+      return;
+    }
     const res = applyCoupon(selectedItems, code);
     if (res.ok) {
+      setAppliedCode(res.coupon.code);
       saveAppliedCoupon(res.coupon.code);
+      setCouponError(null);
       toast.success(`Coupon applied: ${res.coupon.code}`);
     } else {
+      setAppliedCode(null);
       saveAppliedCoupon(null);
-      toast.error(res.reason);
+      const reason = res.reason || "Invalid coupon code";
+      setCouponError(reason); // inline red text
+      toast.error("Wrong coupon applied"); // toast message
     }
   }
 
   function onRemoveCoupon() {
+    setAppliedCode(null);
     saveAppliedCoupon(null);
     setCouponInput("");
+    setCouponError(null);
     toast("Coupon removed", { icon: "✖️" });
   }
+
+  // If selection changes and coupon becomes invalid, auto-clear (optional)
+  useEffect(() => {
+    if (!appliedCode) return;
+    const res = applyCoupon(selectedItems, appliedCode);
+    if (!res.ok) {
+      setAppliedCode(null);
+      saveAppliedCoupon(null);
+      setCouponError(res.reason || "Coupon no longer valid for current items.");
+      toast.error("Coupon no longer valid");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedItems]);
 
   // Empty state
   if (items.length === 0) {
@@ -132,7 +157,6 @@ export default function Cart() {
           <button
             className="text-gray-600 hover:text-black inline-flex items-center gap-2"
             onClick={() => {
-              // delete selected
               selectedItems.forEach((it) => removeItem(it.id));
             }}
             title="Delete selected"
@@ -184,7 +208,6 @@ export default function Cart() {
                     No Brand, Category: {it.category}
                   </div>
                   <div className="mt-2 flex items-center gap-3 text-gray-500">
-                    {/* wishlist (dummy) */}
                     <button
                       className="hover:text-black"
                       title="Save to wishlist"
@@ -202,7 +225,6 @@ export default function Cart() {
                         />
                       </svg>
                     </button>
-                    {/* remove */}
                     <button
                       className="hover:text-black"
                       title="Remove"
@@ -229,8 +251,6 @@ export default function Cart() {
                   <div className="text-[20px] font-semibold text-[#F85606]">
                     {formatRs(it.price)}
                   </div>
-
-                  {/* qty control */}
                   <div className="mt-2 inline-flex items-center border">
                     <button
                       className="w-8 h-8 grid place-items-center hover:bg-gray-50"
@@ -292,9 +312,14 @@ export default function Cart() {
             <div className="flex gap-2">
               <input
                 value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
+                onChange={(e) => {
+                  setCouponInput(e.target.value);
+                  if (couponError) setCouponError(null); // clear as user types
+                }}
                 placeholder="e.g. SAVE10"
                 className="flex-1 border px-3 py-2 outline-none"
+                aria-invalid={couponError ? "true" : "false"}
+                aria-describedby={couponError ? "coupon-error" : undefined}
               />
               {!appliedCode ? (
                 <button
@@ -310,11 +335,21 @@ export default function Cart() {
                 </button>
               )}
             </div>
-            {appliedCoupon && (
+
+            {/* Inline message area */}
+            {couponError ? (
+              <p
+                id="coupon-error"
+                className="mt-2 text-xs text-red-600"
+                aria-live="polite"
+              >
+                {couponError}
+              </p>
+            ) : appliedCoupon ? (
               <p className="mt-2 text-xs text-gray-500">
                 Applied: <b>{appliedCoupon.code}</b> — {appliedCoupon.label}
               </p>
-            )}
+            ) : null}
           </div>
 
           {/* Total */}
