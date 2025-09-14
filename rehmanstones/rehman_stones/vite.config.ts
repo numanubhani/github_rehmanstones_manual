@@ -7,34 +7,69 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "prompt",            // prompt user to install
+      registerType: "autoUpdate",
+
       includeAssets: [
-        "icons/icon-192.png",
-        "icons/icon-512.png",
-        "icons/maskable-192.png",
-        "icons/maskable-512.png",
-        "favicon.svg",
-        "robots.txt"
+        "/favicon.ico",
+        "/icons/icon-192.png",
+        "/icons/icon-512.png",
+        "/icons/maskable-192.png",
+        "/icons/maskable-512.png"
       ],
+
       manifest: {
         name: "Rehman Stones",
-        short_name: "RStones",
-        description: "Handcrafted 925 silver rings & gemstones",
-        start_url: "/",                   // no dynamic origin required
-        scope: "/",
+        short_name: "RehmanStones",
+        start_url: "/",
         display: "standalone",
-        background_color: "#ffffff",
         theme_color: "#111111",
+        background_color: "#ffffff",
         icons: [
-          { src: "/icons/icon-192.png",     sizes: "192x192", type: "image/png" },
-          { src: "/icons/icon-512.png",     sizes: "512x512", type: "image/png" },
-          { src: "/icons/maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
-          { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+          {
+            src: "/icons/maskable-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "maskable any"
+          },
+          {
+            src: "/icons/maskable-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable any"
+          }
         ]
       },
+
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,jpg,jpeg,woff2}"]
+        // allow up to 5MB in precache (optional safeguard)
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+
+        // don’t precache jpg/jpeg (big photos); we’ll cache them at runtime
+        globPatterns: [
+          "**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2}"
+        ],
+
+        // runtime image caching (so jpg/jpeg still get cached in the browser)
+        runtimeCaching: [
+          {
+            // TS-safe param type for Node build (no DOM types here)
+            urlPattern: (ctx: { request: { destination?: string } }) =>
+              ctx.request.destination === "image",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "images",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
+          }
+        ]
       }
     })
-  ]
+  ],
+
+  server: { host: true, port: 5173 }
 });
