@@ -71,10 +71,9 @@ export default function Checkout() {
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
   const [txnRef, setTxnRef] = useState("");
-  const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
 
-  // Coupon state (use state, not just direct read)
+  // Coupon state
   const [appliedCode, setAppliedCode] = useState<string | null>(() =>
     readAppliedCoupon()
   );
@@ -86,6 +85,7 @@ export default function Checkout() {
     if (!appliedCode) return 0;
     const res = applyCoupon(items, appliedCode);
     return res.ok ? res.discount : 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, appliedCode]);
   const total = Math.max(0, subtotal - discount + shipping);
 
@@ -94,10 +94,9 @@ export default function Checkout() {
   }
 
   async function handleProofChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0] || null;
-    setProofFile(f);
-    if (f) {
-      const url = await fileToDataUrl(f);
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = await fileToDataUrl(file);
       setProofPreview(url);
     } else {
       setProofPreview(null);
@@ -165,7 +164,7 @@ export default function Checkout() {
       existing.push(order);
       writeOrders(existing);
       clear();
-      saveAppliedCoupon(null); // clear coupon after placing order
+      saveAppliedCoupon(null);
       setAppliedCode(null);
       toast.success(`Order placed successfully! Tracking ID: ${orderId}`);
       navigate(`/track?id=${orderId}`);
@@ -254,7 +253,9 @@ export default function Checkout() {
                 onChange={() => setPaymentMethod("ONLINE")}
               />
               <div>
-                <div className="font-medium">Online Payment (Bank Transfer)</div>
+                <div className="font-medium">
+                  Online Payment (Bank Transfer)
+                </div>
                 <div className="text-sm text-gray-500">
                   Transfer to our account and upload the payment proof.
                 </div>
@@ -266,8 +267,16 @@ export default function Checkout() {
                 <h3 className="font-medium">Bank Details</h3>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <InfoRow label="Bank" value={BANK.name} />
-                  <InfoRow label="Account Title" value={BANK.accountTitle} copyable />
-                  <InfoRow label="Account Number" value={BANK.accountNumber} copyable />
+                  <InfoRow
+                    label="Account Title"
+                    value={BANK.accountTitle}
+                    copyable
+                  />
+                  <InfoRow
+                    label="Account Number"
+                    value={BANK.accountNumber}
+                    copyable
+                  />
                 </div>
 
                 <div className="mt-4">
@@ -376,14 +385,20 @@ export default function Checkout() {
             </div>
 
             <div className="mt-4 border-t pt-3 space-y-1 text-sm">
-              <Row label="Subtotal" value={`Rs. ${subtotal.toLocaleString("en-PK")}`} />
+              <Row
+                label="Subtotal"
+                value={`Rs. ${subtotal.toLocaleString("en-PK")}`}
+              />
               {appliedCoupon && discount > 0 && (
                 <Row
                   label={`Coupon (${appliedCoupon.code})`}
                   value={`- Rs. ${discount.toLocaleString("en-PK")}`}
                 />
               )}
-              <Row label="Shipping" value={`Rs. ${shipping.toLocaleString("en-PK")}`} />
+              <Row
+                label="Shipping"
+                value={`Rs. ${shipping.toLocaleString("en-PK")}`}
+              />
               <div className="flex items-center justify-between pt-1 font-semibold text-lg">
                 <span>Total</span>
                 <span>Rs. {total.toLocaleString("en-PK")}</span>
