@@ -1,3 +1,4 @@
+// src/pages/Checkout.tsx
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -73,7 +74,7 @@ export default function Checkout() {
   const [txnRef, setTxnRef] = useState("");
   const [proofPreview, setProofPreview] = useState<string | null>(null);
 
-  // Coupon state
+  // Coupon state (use state, not just direct read)
   const [appliedCode, setAppliedCode] = useState<string | null>(() =>
     readAppliedCoupon()
   );
@@ -85,7 +86,6 @@ export default function Checkout() {
     if (!appliedCode) return 0;
     const res = applyCoupon(items, appliedCode);
     return res.ok ? res.discount : 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, appliedCode]);
   const total = Math.max(0, subtotal - discount + shipping);
 
@@ -94,9 +94,9 @@ export default function Checkout() {
   }
 
   async function handleProofChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = await fileToDataUrl(file);
+    const f = e.target.files?.[0] || null;
+    if (f) {
+      const url = await fileToDataUrl(f);
       setProofPreview(url);
     } else {
       setProofPreview(null);
@@ -164,7 +164,7 @@ export default function Checkout() {
       existing.push(order);
       writeOrders(existing);
       clear();
-      saveAppliedCoupon(null);
+      saveAppliedCoupon(null); // clear coupon after placing order
       setAppliedCode(null);
       toast.success(`Order placed successfully! Tracking ID: ${orderId}`);
       navigate(`/track?id=${orderId}`);
