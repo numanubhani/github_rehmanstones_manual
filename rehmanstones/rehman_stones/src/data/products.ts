@@ -1,4 +1,5 @@
 // src/data/products.ts
+
 export type Product = {
   id: number | string;
   name: string;
@@ -13,7 +14,16 @@ export type Product = {
   description?: string;
   highlights?: string[];
   specs?: Record<string, string>;
+
+  /** ---------- Admin / Inventory helpers (optional) ---------- */
+  sizes?: number[];          // rings only (11–40)
+  stock?: number;            // total available units
+  active?: boolean;          // toggle visibility
+  createdAt?: string;        // ISO timestamp
 };
+
+/** Ring sizes 11–40 for quick reuse */
+export const RING_SIZES: number[] = Array.from({ length: 30 }, (_, i) => i + 11);
 
 export const PRODUCTS: Product[] = [
   {
@@ -35,6 +45,10 @@ export const PRODUCTS: Product[] = [
       "Classic 925 sterling silver band ring with high-polish finish. Nickel-free and hypoallergenic.",
     highlights: ["925 Sterling Silver", "Hand-polished", "Hypoallergenic"],
     specs: { Material: "Silver 925", Finish: "High Polish", Weight: "3.2g" },
+    sizes: RING_SIZES,
+    stock: 48,
+    active: true,
+    createdAt: new Date(Date.now() - 12 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 2,
@@ -54,6 +68,10 @@ export const PRODUCTS: Product[] = [
       "Intricate Celtic knot design cast in solid 925 silver. Comfortable inner band.",
     highlights: ["Celtic motif", "Comfort fit", "Anti-tarnish coat"],
     specs: { Material: "Silver 925", Width: "4.5mm" },
+    sizes: RING_SIZES,
+    stock: 32,
+    active: true,
+    createdAt: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 3,
@@ -72,6 +90,9 @@ export const PRODUCTS: Product[] = [
     description: "Natural amethyst oval-cut, suitable for 925 silver settings.",
     highlights: ["Natural stone", "Oval cut", "Certificate included"],
     specs: { Carat: "2.1ct", Cut: "Oval", Color: "Purple" },
+    stock: 14,
+    active: true,
+    createdAt: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 4,
@@ -88,6 +109,9 @@ export const PRODUCTS: Product[] = [
     description: "Deep red garnet, cushion-cut. Ideal for everyday wear.",
     highlights: ["Durable", "Cushion cut", "Rich color"],
     specs: { Carat: "1.8ct", Cut: "Cushion", Color: "Deep Red" },
+    stock: 20,
+    active: true,
+    createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 5,
@@ -105,6 +129,10 @@ export const PRODUCTS: Product[] = [
     description: "Bold signet ring in 925 silver. Optional engraving.",
     highlights: ["Engravable", "Solid face", "Nickel-free"],
     specs: { Face: "12mm", Weight: "6.8g" },
+    sizes: RING_SIZES,
+    stock: 18,
+    active: true,
+    createdAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 6,
@@ -121,6 +149,9 @@ export const PRODUCTS: Product[] = [
     description: "Natural turquoise with classic matrix.",
     highlights: ["Stabilized", "Vibrant hue"],
     specs: { Carat: "2.3ct", Origin: "Nishapur" },
+    stock: 11,
+    active: true,
+    createdAt: new Date().toISOString(),
   },
 ];
 
@@ -129,3 +160,6 @@ export const getProductById = (id: string | number) =>
 
 export const getRelated = (p: Product) =>
   PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 5);
+
+/** Simple helper for admin screens (optional) */
+export const listProducts = () => PRODUCTS;

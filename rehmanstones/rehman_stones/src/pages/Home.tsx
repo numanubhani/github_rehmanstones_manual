@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import CarouselHero from "../components/CarouselHero";
 import ProductCard from "../components/ProductCard";
 import FilterTabs, { type FilterKey } from "../components/FilterTabs";
+import { getSlides, type Slide } from "../utils/slides";
 
 /* Local product images (Vite will hash & optimize) */
 import img1 from "../assets/products/1 (1).jpg";
@@ -12,30 +13,32 @@ import img4 from "../assets/products/1 (4).jpg";
 import img5 from "../assets/products/1 (5).jpg";
 import img6 from "../assets/products/1 (6).jpg";
 
-/* Hero slides (keep or swap to local later) */
-const slides = [
+/* Hero slides (default set; admin can override via localStorage) */
+const DEFAULT_SLIDES: Slide[] = [
   {
-    id: 1,
+    id: "1",
     image:
       "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=1600",
     headline: "Pure 925 Silver",
     subhead: "Handcrafted rings & gemstones",
   },
   {
-    id: 2,
+    id: "2",
     image:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1600",
     headline: "Timeless Designs",
     subhead: "Elegant, minimal, durable",
   },
   {
-    id: 3,
+    id: "3",
     image:
       "https://images.unsplash.com/photo-1518544801976-3e1ee0bc8eaf?q=80&w=1600",
     headline: "Gemstones Collection",
     subhead: "Certified stones set in silver",
   },
-] as const;
+];
+// Read admin-managed slides (falls back to defaults)
+const slides = getSlides(DEFAULT_SLIDES);
 
 type Product = {
   id: number | string;
@@ -147,8 +150,7 @@ export default function Home() {
         list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         break;
       default:
-        // "Newest" — keep original order (id DESC if you prefer)
-        list.sort((a, b) => Number(b.id) - Number(a.id));
+        list.sort((a, b) => Number(b.id) - Number(a.id)); // Newest first
     }
     return list;
   }, [filtered, sort]);
@@ -234,7 +236,12 @@ export default function Home() {
 /* ------- Small UI helpers (local to this page) ------- */
 
 function Card({ children }: { children: React.ReactNode }) {
-  return <div className="bg-white rounded-xl shadow-sm p-4">{children}</div>;
+  // Subtle, professional – no heavy elevation, just a gentle ring
+  return (
+    <div className="bg-white rounded-xl ring-1 ring-gray-200 p-4">
+      {children}
+    </div>
+  );
 }
 
 function Icon({ name }: { name: "truck" | "shield" | "refresh" }) {

@@ -1,81 +1,80 @@
+// src/context/AuthContext.tsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type User = { id: string; name: string; email: string };
-type Credentials = { email: string; password: string };
-type SignupInput = Credentials & { name: string };
+export type Role = "user" | "admin";
+export type User = { name: string; email: string; role: Role };
+
+type LoginArgs = { email: string; password: string };
+type SignupArgs = { name: string; email: string; password: string };
 
 type AuthContextType = {
   user: User | null;
-  login: (c: Credentials) => Promise<void>;
-  signup: (s: SignupInput) => Promise<void>;
-  logout: () => void;
+  login: (args: LoginArgs) => Promise<void>;
+  signup: (args: SignupArgs) => Promise<void>;
+  logout: () => Promise<void> | void;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  login: async () => {},
+  signup: async () => {},
+  logout: async () => {},
+});
 
-const USERS_KEY = "auth-users-v1"; // demo storage for users
-const SESSION_KEY = "auth-session-v1"; // current user id
-
-type StoredUser = User & { password: string }; // DEMO ONLY (plain text)
-
-function readUsers(): StoredUser[] {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-function writeUsers(users: StoredUser[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
+const LS_USER = "auth_user";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(LS_USER) || "null");
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
-    // restore session
-    const id = localStorage.getItem(SESSION_KEY);
-    if (!id) return;
-    const u = readUsers().find((u) => u.id === id);
-    if (u) setUser({ id: u.id, name: u.name, email: u.email });
-  }, []);
+    if (user) localStorage.setItem(LS_USER, JSON.stringify(user));
+    else localStorage.removeItem(LS_USER);
+  }, [user]);
 
-  const value = useMemo<AuthContextType>(
-    () => ({
-      user,
-      async login({ email, password }) {
-        const u = readUsers().find(
-          (u) => u.email.toLowerCase() === email.toLowerCase()
-        );
-        if (!u || u.password !== password)
-          throw new Error("Invalid email or password");
-        localStorage.setItem(SESSION_KEY, u.id);
-        setUser({ id: u.id, name: u.name, email: u.email });
-      },
-      async signup({ name, email, password }) {
-        const users = readUsers();
-        if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-          throw new Error("Email already registered");
-        }
-        const id = `U-${Date.now()}`;
-        users.push({ id, name, email, password }); // DEMO ONLY – store hashed on backend
-        writeUsers(users);
-        localStorage.setItem(SESSION_KEY, id);
-        setUser({ id, name, email });
-      },
-      logout() {
-        localStorage.removeItem(SESSION_KEY);
-        setUser(null);
-      },
-    }),
-    [user]
-  );
+  function inferRole(email: string): Role {
+    // simple/demo rule — tweak as you like:
+    // 1) exact admin email, or
+    // 2) any @rehmanstones.com email is admin
+    if (/^admin@/i.test(email) || /@rehmanstones\.com$/i.test(email)) {
+      return "admin";
+    }
+    return "user";
+  }
+
+  function niceNameFromEmail(email: string) {
+    const base = email.split("@")[0].replace(/\./g, " ");
+    return base
+      .split(" ")
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+      .join(" ");
+  }
+
+  const login = async ({ email }: LoginArgs) => {
+    const role = inferRole(email);
+    const name = niceNameFromEmail(email);
+    setUser({ name, email, role });
+  };
+
+  const signup = async ({ name, email }: SignupArgs) => {
+    const role = inferRole(email);
+    setUser({ name, email, role });
+  };
+
+  const logout = async () => {
+    setUser(null);
+  };
+
+  const value = useMemo(() => ({ user, login, signup, logout }), [user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
-  return ctx;
+  return useContext(AuthContext);
 }

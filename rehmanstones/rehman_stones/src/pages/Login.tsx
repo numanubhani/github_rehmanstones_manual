@@ -3,11 +3,14 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+type Role = "user" | "admin";
+
 export default function Login() {
   const { login } = useAuth();
   const [params] = useSearchParams();
   const navigate = useNavigate();
 
+  const [role, setRole] = useState<Role>("user");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -19,8 +22,21 @@ export default function Login() {
     setError(null);
     setLoading(true);
     try {
+      // your existing auth flow
       await login({ email, password });
-      navigate(params.get("redirect") ?? "/");
+
+      // persist selected role for the rest of the app (no changes needed in AuthContext)
+      localStorage.setItem("role", role);
+
+      // redirect logic:
+      // 1) if redirect=? is present use that,
+      // 2) otherwise, admins -> /admin, users -> /
+      const afterRedirect = params.get("redirect");
+      if (afterRedirect) {
+        navigate(afterRedirect);
+      } else {
+        navigate(role === "admin" ? "/admin" : "/");
+      }
     } catch (err: any) {
       setError(err?.message ?? "Login failed");
     } finally {
@@ -34,7 +50,6 @@ export default function Login() {
         {/* Brand / header */}
         <div className="text-center">
           <div className="mx-auto mb-3 w-12 h-12 rounded-xl bg-black grid place-items-center">
-            {/* lock icon */}
             <svg
               width="22"
               height="22"
@@ -60,6 +75,16 @@ export default function Login() {
           </div>
           <h1 className="text-2xl font-semibold">Sign in to Rehman Stones</h1>
           <p className="text-gray-500 mt-1">Welcome back — we missed you.</p>
+        </div>
+
+        {/* Role switcher */}
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <RoleButton current={role} value="user" onChange={setRole}>
+            User
+          </RoleButton>
+          <RoleButton current={role} value="admin" onChange={setRole}>
+            Admin
+          </RoleButton>
         </div>
 
         {/* Error message */}
@@ -140,6 +165,7 @@ export default function Login() {
                 )}
               </button>
             </div>
+
             <div className="mt-2 flex items-center justify-between text-sm">
               <label className="inline-flex items-center gap-2 text-gray-600">
                 <input type="checkbox" className="w-4 h-4 rounded" />
@@ -182,6 +208,37 @@ export default function Login() {
         </p>
       </div>
     </div>
+  );
+}
+
+/* ---------- Small UI bits ---------- */
+
+function RoleButton({
+  current,
+  value,
+  onChange,
+  children,
+}: {
+  current: "user" | "admin";
+  value: "user" | "admin";
+  onChange: (r: "user" | "admin") => void;
+  children: React.ReactNode;
+}) {
+  const active = current === value;
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(value)}
+      className={`w-full py-2 rounded-lg text-sm transition
+        ${
+          active
+            ? "bg-black text-white"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        }`}
+      aria-pressed={active}
+    >
+      {children}
+    </button>
   );
 }
 

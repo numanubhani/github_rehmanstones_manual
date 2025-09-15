@@ -1,3 +1,4 @@
+// src/pages/Track.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -119,6 +120,93 @@ function buildTimeline(order: Order): Required<Order>["timeline"] {
 }
 
 const fmtDate = (iso?: string) => (iso ? new Date(iso).toLocaleString() : "--");
+
+// ---------- Invoice (letterhead) ----------
+function printInvoice(order: Order) {
+  const subtotal = order.items.reduce((s, i) => s + i.qty * i.price, 0);
+  const total = subtotal + (order.shippingFee ?? 0);
+
+  const win = window.open("", "_blank", "width=840,height=960");
+  if (!win) return;
+
+  const rows = order.items
+    .map(
+      (i) => `
+      <tr>
+        <td>${i.name}</td>
+        <td style="text-align:center">${i.qty}</td>
+        <td style="text-align:right">Rs. ${i.price.toLocaleString("en-PK")}</td>
+        <td style="text-align:right">Rs. ${(i.qty * i.price).toLocaleString(
+          "en-PK"
+        )}</td>
+      </tr>`
+    )
+    .join("");
+
+  win.document.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Invoice #${order.id}</title>
+<style>
+  body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
+  .wrap{max-width:780px;margin:24px auto;padding:24px;border:1px solid #e5e7eb;background:#fff}
+  h1{margin:16px 0 8px 0}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{border-top:1px solid #e5e7eb;padding:8px 6px;font-size:14px}
+  .muted{color:#6b7280}
+  .right{text-align:right}
+  .small{font-size:12px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <img src="/letterhead.png" alt="Letterhead" style="width:100%;max-height:120px;object-fit:contain"/>
+    <h1>Invoice</h1>
+    <div class="small muted">Order #${order.id} • ${new Date(
+    order.createdAt
+  ).toLocaleString()}</div>
+
+    <div style="display:flex;gap:24px;margin-top:12px">
+      <div style="flex:1">
+        <div><b>Bill To</b></div>
+        <div>${order.customer.name}</div>
+        <div>${order.customer.phone}</div>
+        <div>${order.customer.address}, ${order.customer.city}</div>
+      </div>
+      <div style="flex:1">
+        <div><b>Status</b></div>
+        <div>${order.status.replace(/_/g, " ")}</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th align="left">Item</th><th class="right">Qty</th><th class="right">Price</th><th class="right">Amount</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr><td colspan="3" class="right"><b>Subtotal</b></td><td class="right"><b>Rs. ${subtotal.toLocaleString(
+          "en-PK"
+        )}</b></td></tr>
+        <tr><td colspan="3" class="right">Shipping</td><td class="right">Rs. ${(
+          order.shippingFee ?? 0
+        ).toLocaleString("en-PK")}</td></tr>
+        <tr><td colspan="3" class="right"><b>Total</b></td><td class="right"><b>Rs. ${total.toLocaleString(
+          "en-PK"
+        )}</b></td></tr>
+      </tfoot>
+    </table>
+
+    <p class="small muted" style="margin-top:24px">
+      Thank you for shopping with Rehman Stones.
+    </p>
+  </div>
+  <script>window.print();</script>
+</body>
+</html>`);
+  win.document.close();
+}
 
 export default function Track() {
   const [params, setParams] = useSearchParams();
@@ -297,7 +385,7 @@ export default function Track() {
               </div>
             </div>
 
-            {/* RIGHT: order details */}
+            {/* RIGHT: order details + invoice */}
             <aside className="space-y-4">
               <div className="bg-white p-5 rounded-lg shadow-sm">
                 <h3 className="font-semibold">Shipping details</h3>
@@ -359,6 +447,20 @@ export default function Track() {
                     <span>Rs. {total.toLocaleString("en-PK")}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Invoice card */}
+              <div className="bg-white p-5 rounded-lg shadow-sm">
+                <h3 className="font-semibold">Invoice</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Download the invoice on Rehman Stones letterhead.
+                </p>
+                <button
+                  onClick={() => printInvoice(order)}
+                  className="mt-3 px-4 py-2 bg-black text-white rounded"
+                >
+                  Download / Print Invoice
+                </button>
               </div>
             </aside>
           </div>
