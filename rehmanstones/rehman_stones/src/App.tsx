@@ -17,6 +17,7 @@ import AdminCarousel from "./admin/pages/AdminCarousel";
 import AdminReports from "./admin/pages/AdminReports";
 import AdminSettings from "./admin/pages/AdminSettings";
 import SiteModal from "./components/SiteModal";
+import OrderHistory from "./admin/pages/OrderHistory"; // 👈 add this
 
 export default function App() {
   return (
@@ -36,7 +37,7 @@ export default function App() {
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/checkout" element={<Checkout />} />
-
+          <Route path="/orders" element={<OrderHistory />} /> {/* 👈 new */}
           {/* Admin */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="orders" replace />} />
