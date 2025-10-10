@@ -389,10 +389,10 @@ function downloadInvoice(order: Order) {
           </div>
           <div class="total-row">
             <span>Shipping Fee</span>
-            <span style="color: ${order.shippingFee === 0 ? '#10b981' : '#000'}; font-weight: 700;">${
-              order.shippingFee === 0
+            <span style="color: ${(order.shippingFee ?? 0) === 0 ? '#10b981' : '#000'}; font-weight: 700;">${
+              (order.shippingFee ?? 0) === 0
                 ? "FREE"
-                : `Rs. ${order.shippingFee.toLocaleString("en-PK")}`
+                : `Rs. ${(order.shippingFee ?? 0).toLocaleString("en-PK")}`
             }</span>
           </div>
           <div class="total-row grand">
@@ -939,11 +939,3 @@ function Stepper({ status }: { status: Status }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-gray-600">{label}</span>
-      <span className="font-medium">{value}</span>
-    </div>
-  );
-}
