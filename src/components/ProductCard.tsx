@@ -2,17 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useState } from "react";
-
-type Product = {
-  id: number | string;
-  name: string;
-  price: number;
-  image: string;
-  category: "ring" | "gemstone";
-  oldPrice?: number;
-  rating?: number;
-  ratingCount?: number;
-};
+import type { Product } from "../data/products";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
@@ -28,10 +18,13 @@ export default function ProductCard({ product }: { product: Product }) {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: product.images[0],
       category: product.category,
     });
   };
+
+  // Use first image from the images array
+  const productImage = product.images && product.images.length > 0 ? product.images[0] : "";
 
   const discount = product.oldPrice
     ? Math.round(100 - (product.price / product.oldPrice) * 100)
@@ -80,7 +73,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="absolute inset-0 shimmer" />
         )}
         <img
-          src={product.image}
+          src={productImage}
           alt={product.name}
           className={`w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'

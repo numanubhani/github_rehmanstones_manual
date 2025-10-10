@@ -1,10 +1,9 @@
 // src/pages/Home.tsx
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import CarouselHero from "../components/CarouselHero";
 import ProductCard from "../components/ProductCard";
 import FilterTabs, { type FilterKey } from "../components/FilterTabs";
-import { getSlides, type Slide } from "../utils/slides";
+import type { Product } from "../data/products";
 
 /* Local product images (Vite will hash & optimize) */
 import img1 from "../assets/products/1 (1).jpg";
@@ -14,44 +13,6 @@ import img4 from "../assets/products/1 (4).jpg";
 import img5 from "../assets/products/1 (5).jpg";
 import img6 from "../assets/products/1 (6).jpg";
 
-/* Hero slides (default set; admin can override via localStorage) */
-const DEFAULT_SLIDES: Slide[] = [
-  {
-    id: "1",
-    image:
-      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=1600",
-    headline: "Pure 925 Silver",
-    subhead: "Handcrafted rings & gemstones",
-  },
-  {
-    id: "2",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1600",
-    headline: "Timeless Designs",
-    subhead: "Elegant, minimal, durable",
-  },
-  {
-    id: "3",
-    image:
-      "https://images.unsplash.com/photo-1518544801976-3e1ee0bc8eaf?q=80&w=1600",
-    headline: "Gemstones Collection",
-    subhead: "Certified stones set in silver",
-  },
-];
-// Read admin-managed slides (falls back to defaults)
-const slides = getSlides(DEFAULT_SLIDES);
-
-type Product = {
-  id: number | string;
-  name: string;
-  price: number;
-  image: string;
-  category: "ring" | "gemstone";
-  oldPrice?: number;
-  rating?: number;
-  ratingCount?: number;
-};
-
 /* Product list using your local images */
 const ALL_PRODUCTS: Product[] = [
   {
@@ -59,8 +20,9 @@ const ALL_PRODUCTS: Product[] = [
     name: "Dure-e-Najaf Silver Ring (925)",
     price: 3500,
     oldPrice: 4200,
-    image: img1,
+    images: [img1],
     category: "ring",
+    brand: "Rehman Stones",
     rating: 4.5,
     ratingCount: 123,
   },
@@ -69,8 +31,9 @@ const ALL_PRODUCTS: Product[] = [
     name: "Aqeeq (Agate) Silver Ring – Handcrafted",
     price: 5200,
     oldPrice: 5900,
-    image: img2,
+    images: [img2],
     category: "ring",
+    brand: "Rehman Stones",
     rating: 4.6,
     ratingCount: 86,
   },
@@ -79,8 +42,9 @@ const ALL_PRODUCTS: Product[] = [
     name: "Silver Chains & Dure-e-Najaf Pendants",
     price: 4800,
     oldPrice: 5600,
-    image: img3,
+    images: [img3],
     category: "gemstone",
+    brand: "Rehman Stones",
     rating: 4.4,
     ratingCount: 67,
   },
@@ -89,8 +53,9 @@ const ALL_PRODUCTS: Product[] = [
     name: "Amethyst (Jamunia) Set – Ring & Beads",
     price: 7800,
     oldPrice: 8900,
-    image: img4,
+    images: [img4],
     category: "gemstone",
+    brand: "Rehman Stones",
     rating: 4.7,
     ratingCount: 102,
   },
@@ -99,8 +64,9 @@ const ALL_PRODUCTS: Product[] = [
     name: "Polished Aqeeq Silver Rings (Pair)",
     price: 6900,
     oldPrice: 7600,
-    image: img5,
+    images: [img5],
     category: "ring",
+    brand: "Rehman Stones",
     rating: 4.3,
     ratingCount: 54,
   },
@@ -109,8 +75,9 @@ const ALL_PRODUCTS: Product[] = [
     name: "Minimal Star-Engraved Silver Rings",
     price: 4200,
     oldPrice: 4800,
-    image: img6,
+    images: [img6],
     category: "ring",
+    brand: "Rehman Stones",
     rating: 4.2,
     ratingCount: 39,
   },
