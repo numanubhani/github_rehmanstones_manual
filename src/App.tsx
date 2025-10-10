@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import { FloatingWhatsApp } from "./components/WhatsAppButton";
 import Home from "./pages/Home";
 import Rings from "./pages/Rings";
 import Gemstones from "./pages/Gemstones";
@@ -28,6 +29,7 @@ import AdminSettings from "./admin/pages/AdminSettings";
 import SiteModal from "./components/SiteModal";
 import OrderHistory from "./admin/pages/OrderHistory";
 import Wishlist from "./pages/Wishlist";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -46,6 +48,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -73,6 +76,7 @@ export default function App() {
       </main>
       
       <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 }

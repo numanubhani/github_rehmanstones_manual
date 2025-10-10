@@ -1,6 +1,7 @@
 // src/pages/Track.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import SEO from "../components/SEO";
 
 type Status =
   | "PLACED"
@@ -509,9 +510,15 @@ export default function Track() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header - Only show when no order is displayed */}
+    <>
+      <SEO
+        title="Track Your Order"
+        description="Track your Rehman Stones order in real-time. Enter your order ID to see the current status and delivery details."
+        keywords="track order, order tracking, delivery status, order status"
+      />
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header - Only show when no order is displayed */}
         {!order && (
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-2xl mb-6 shadow-xl">
@@ -874,6 +881,7 @@ export default function Track() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

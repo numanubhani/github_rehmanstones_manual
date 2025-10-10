@@ -225,9 +225,17 @@ export default function Navbar() {
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
-                <span className="w-8 h-8 rounded-full bg-black text-white grid place-items-center text-xs font-bold">
-                  {initials}
-                </span>
+                {user.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover border border-gray-300"
+                  />
+                ) : (
+                  <span className="w-8 h-8 rounded-full bg-black text-white grid place-items-center text-xs font-bold">
+                    {initials}
+                  </span>
+                )}
                 <span className="text-sm font-medium text-gray-800">
                   {firstName || user.name || "Account"}
                 </span>
@@ -252,6 +260,15 @@ export default function Navbar() {
                     </div>
                   </div>
                   <div className="h-px bg-gray-100" />
+                  <button
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate("/profile");
+                    }}
+                  >
+                    My Profile
+                  </button>
                   <button
                     className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
                     onClick={() => {
@@ -324,9 +341,17 @@ export default function Navbar() {
             ) : (
               <div className="mb-2 rounded-lg ring-1 ring-gray-200 p-3 bg-white">
                 <div className="flex items-center gap-3">
-                  <span className="w-9 h-9 rounded-full bg-black text-white grid place-items-center text-sm">
-                    {initials}
-                  </span>
+                  {user.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={user.name}
+                      className="w-9 h-9 rounded-full object-cover border border-gray-300"
+                    />
+                  ) : (
+                    <span className="w-9 h-9 rounded-full bg-black text-white grid place-items-center text-sm">
+                      {initials}
+                    </span>
+                  )}
                   <div className="min-w-0">
                     <div className="text-sm font-semibold truncate">
                       {user.name}

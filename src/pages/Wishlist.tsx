@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
+import SEO from "../components/SEO";
 
 export default function Wishlist() {
   const { wishlistItems, removeFromWishlist, clearWishlist } = useWishlist();
@@ -25,9 +26,15 @@ export default function Wishlist() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
+    <>
+      <SEO
+        title="My Wishlist - Saved Items"
+        description="View your saved items and wishlist. Shop your favorite silver jewelry and gemstones at Rehman Stones."
+        keywords="wishlist, saved items, favorites, saved products"
+      />
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
           <h1 className="text-3xl font-black text-black">My Wishlist</h1>
           <p className="text-gray-600 mt-1">{wishlistItems.length} items saved</p>
         </div>
@@ -100,6 +107,7 @@ export default function Wishlist() {
         </div>
       )}
     </div>
+    </>
   );
 }
 

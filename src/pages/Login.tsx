@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import SEO from "../components/SEO";
 
 type Role = "user" | "admin";
 
@@ -22,20 +23,21 @@ export default function Login() {
     setError(null);
     setLoading(true);
     try {
-      // your existing auth flow
-      await login({ email, password });
+      const success = await login({ email, password });
 
-      // persist selected role for the rest of the app (no changes needed in AuthContext)
-      localStorage.setItem("role", role);
+      if (success) {
+        // Persist selected role for the rest of the app
+        localStorage.setItem("role", role);
 
-      // redirect logic:
-      // 1) if redirect=? is present use that,
-      // 2) otherwise, admins -> /admin, users -> /
-      const afterRedirect = params.get("redirect");
-      if (afterRedirect) {
-        navigate(afterRedirect);
-      } else {
-        navigate(role === "admin" ? "/admin" : "/");
+        // Redirect logic:
+        // 1) if redirect=? is present use that,
+        // 2) otherwise, admins -> /admin, users -> /
+        const afterRedirect = params.get("redirect");
+        if (afterRedirect) {
+          navigate(afterRedirect);
+        } else {
+          navigate(role === "admin" ? "/admin" : "/");
+        }
       }
     } catch (err: any) {
       setError(err?.message ?? "Login failed");
@@ -45,7 +47,13 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 grid place-items-center px-4">
+    <>
+      <SEO
+        title="Login - Sign In to Your Account"
+        description="Sign in to your Rehman Stones account to track orders, manage wishlist, and enjoy exclusive benefits."
+        keywords="login, sign in, user account, member login"
+      />
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 grid place-items-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
         {/* Brand / header */}
         <div className="text-center">
@@ -208,6 +216,7 @@ export default function Login() {
         </p>
       </div>
     </div>
+    </>
   );
 }
 

@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { PRODUCTS } from "../data/products";
+import SEO from "../components/SEO";
 
 type SortKey = "Newest" | "PriceLow" | "PriceHigh" | "Rating";
 
@@ -34,9 +35,15 @@ export default function Gemstones() {
   }, [gemstones, sort]);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-xl p-8 md:p-12">
+    <>
+      <SEO
+        title="Gemstones Collection - Authentic Precious Stones"
+        description="Explore authentic gemstones including Aqeeq, Dure-e-Najaf, Amethyst, and more. Premium quality gemstone jewelry with certification."
+        keywords="gemstones, aqeeq, dure-e-najaf, amethyst, precious stones, authentic gemstones Pakistan"
+      />
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-xl p-8 md:p-12">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">
           Certified Gemstones Collection
         </h1>
@@ -158,7 +165,8 @@ export default function Gemstones() {
           </ul>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

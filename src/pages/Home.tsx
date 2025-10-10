@@ -6,6 +6,7 @@ import FilterTabs, { type FilterKey } from "../components/FilterTabs";
 import type { Product } from "../data/products";
 import toast from "react-hot-toast";
 import QuickView from "../components/QuickView";
+import SEO from "../components/SEO";
 
 /* Local product images (Vite will hash & optimize) */
 import img1 from "../assets/products/1 (1).jpg";
@@ -171,8 +172,14 @@ export default function Home() {
   }, [filtered, sort]);
 
   return (
-    <div className="space-y-10">
-      {/* Clean Hero Section */}
+    <>
+      <SEO
+        title="Rehman Stones - Premium 925 Silver Jewelry & Authentic Gemstones"
+        description="Shop handcrafted 925 silver rings, Aqeeq, Dure-e-Najaf, and authentic gemstones. Premium quality jewelry with cash on delivery. Free shipping across Pakistan."
+        keywords="silver rings Pakistan, 925 silver jewelry, aqeeq ring, dure-e-najaf, gemstone jewelry, handcrafted rings, authentic stones"
+      />
+      <div className="space-y-10">
+        {/* Clean Hero Section */}
       {!searchQuery && (
         <div className="relative bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="grid md:grid-cols-2 gap-0">
@@ -417,7 +424,8 @@ export default function Home() {
       {quickViewProduct && (
         <QuickView product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

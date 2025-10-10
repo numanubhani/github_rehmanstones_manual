@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { PRODUCTS } from "../data/products";
+import SEO from "../components/SEO";
 
 type SortKey = "Newest" | "PriceLow" | "PriceHigh" | "Rating";
 
@@ -34,8 +35,14 @@ export default function Rings() {
   }, [rings, sort]);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <>
+      <SEO
+        title="Silver Rings Collection - 925 Silver Handcrafted Rings"
+        description="Browse our exclusive collection of handcrafted 925 silver rings. Featuring Aqeeq, Dure-e-Najaf, and premium designs. Cash on delivery available."
+        keywords="silver rings, 925 silver rings, aqeeq ring, handcrafted silver rings, mens silver rings Pakistan"
+      />
+      <div className="space-y-8">
+        {/* Header */}
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl p-8 md:p-12">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">Silver Rings Collection</h1>
         <p className="text-gray-300 max-w-2xl">
@@ -129,7 +136,8 @@ export default function Rings() {
           description="Each piece is carefully crafted by skilled artisans with attention to detail."
         />
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

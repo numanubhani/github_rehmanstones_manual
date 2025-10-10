@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
+import SEO from "../components/SEO";
 import {
   applyCoupon,
   readAppliedCoupon,
@@ -173,9 +174,15 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
+    <>
+      <SEO
+        title="Checkout - Secure Payment"
+        description="Complete your order securely. Cash on delivery available. Buy premium 925 silver jewelry with confidence."
+        keywords="checkout, secure payment, cash on delivery, silver jewelry checkout"
+      />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
@@ -583,6 +590,7 @@ export default function Checkout() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

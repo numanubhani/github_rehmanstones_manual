@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import SEO from "../components/SEO";
 
 export default function Signup() {
   const { signup } = useAuth();
@@ -9,6 +10,7 @@ export default function Signup() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -47,8 +49,10 @@ export default function Signup() {
     if (password !== confirm) return setError("Passwords do not match.");
     setLoading(true);
     try {
-      await signup({ name, email, password });
-      navigate("/"); // auto-login -> home
+      const success = await signup({ name, email, password, phone });
+      if (success) {
+        navigate("/"); // auto-login -> home
+      }
     } catch (err: any) {
       setError(err?.message ?? "Signup failed");
     } finally {
@@ -57,7 +61,13 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 grid place-items-center px-4">
+    <>
+      <SEO
+        title="Sign Up - Create Account"
+        description="Create your account at Rehman Stones to track orders, save your wishlist, and enjoy exclusive benefits."
+        keywords="signup, create account, register, user account"
+      />
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 grid place-items-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
         {/* Header */}
         <div className="text-center">
@@ -122,6 +132,18 @@ export default function Signup() {
               className="mt-1 w-full rounded-lg ring-1 ring-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-black"
               placeholder="you@example.com"
               autoComplete="email"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600">Phone (Optional)</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 w-full rounded-lg ring-1 ring-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-black"
+              placeholder="03xx-xxxxxxx"
+              autoComplete="tel"
             />
           </div>
 
@@ -282,6 +304,7 @@ export default function Signup() {
         </p>
       </div>
     </div>
+    </>
   );
 }
 
