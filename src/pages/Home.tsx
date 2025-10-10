@@ -1,5 +1,6 @@
 // src/pages/Home.tsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import CarouselHero from "../components/CarouselHero";
 import ProductCard from "../components/ProductCard";
 import FilterTabs, { type FilterKey } from "../components/FilterTabs";
@@ -118,8 +119,29 @@ const ALL_PRODUCTS: Product[] = [
 type SortKey = "Newest" | "PriceLow" | "PriceHigh" | "Rating";
 
 export default function Home() {
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   const [filter, setFilter] = useState<FilterKey>("All");
   const [sort, setSort] = useState<SortKey>("Newest");
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Carousel images - using product images
+  const carouselImages = [
+    img1,
+    img2,
+    img3,
+    img4,
+    img5,
+    img6,
+  ];
+
+  // Auto-play carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+    }, 3000); // Change every 3 seconds
+    return () => clearInterval(timer);
+  }, [carouselImages.length]);
 
   const counts = useMemo(
     () => ({
@@ -131,11 +153,24 @@ export default function Home() {
   );
 
   const filtered = useMemo(() => {
-    if (filter === "All") return ALL_PRODUCTS;
+    let products = ALL_PRODUCTS;
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      products = products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply category filter
+    if (filter === "All") return products;
     if (filter === "Rings")
-      return ALL_PRODUCTS.filter((p) => p.category === "ring");
-    return ALL_PRODUCTS.filter((p) => p.category === "gemstone");
-  }, [filter]);
+      return products.filter((p) => p.category === "ring");
+    return products.filter((p) => p.category === "gemstone");
+  }, [filter, searchQuery]);
 
   const display = useMemo(() => {
     const list = [...filtered];
@@ -157,8 +192,108 @@ export default function Home() {
 
   return (
     <div className="space-y-10">
-      {/* Hero */}
-      <CarouselHero slides={slides as any} />
+      {/* Clean Hero Section */}
+      {!searchQuery && (
+        <div className="relative bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-0">
+            {/* Left: Content */}
+            <div className="px-8 py-12 md:py-16 flex flex-col justify-center">
+              <h1 className="text-4xl md:text-5xl font-black text-black leading-tight mb-4">
+                Premium Silver Jewelry
+              </h1>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Authentic 925 silver rings and certified gemstones. Handcrafted excellence, delivered nationwide.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="#products"
+                  className="inline-block bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Shop Collection
+                </a>
+                <a
+                  href="/about"
+                  className="inline-block bg-gray-100 hover:bg-gray-200 text-black px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Learn More
+                </a>
+              </div>
+            </div>
+
+            {/* Right: Carousel */}
+            <div className="relative h-64 md:h-auto bg-gray-100 overflow-hidden">
+              {/* Carousel Images */}
+              <div className="relative w-full h-full">
+                {carouselImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-opacity duration-700 ${
+                      index === currentSlide ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`Product ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+
+                {/* Navigation Dots */}
+                <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2">
+                  {carouselImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentSlide
+                          ? 'bg-white w-8'
+                          : 'bg-white/50 hover:bg-white/75'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Navigation Arrows */}
+                <button
+                  onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg"
+                  aria-label="Previous slide"
+                >
+                  <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg"
+                  aria-label="Next slide"
+                >
+                  <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Search results header */}
+      {searchQuery && (
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="text-2xl font-bold">
+            Search results for "{searchQuery}"
+          </h2>
+          <p className="text-gray-600 mt-1">
+            {display.length} {display.length === 1 ? "product" : "products"} found
+          </p>
+        </div>
+      )}
 
       {/* Trust / perks strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -194,7 +329,7 @@ export default function Home() {
       </div>
 
       {/* Heading + filter + sort */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div id="products" className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">Latest Products</h2>
           <p className="text-gray-500 text-sm mt-0.5">

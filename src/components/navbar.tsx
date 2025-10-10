@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
@@ -15,12 +16,12 @@ export default function Navbar() {
   const { user, logout } = useAuth(); // <-- expects shape like: { name, email, role: 'user' | 'admin' }
 
   const mainLinkBase =
-    "relative px-3 py-2 rounded-md text-sm font-medium transition-colors";
-  const mainLinkActive = "text-black bg-black/5";
-  const mainLinkIdle = "text-gray-700 hover:text-black hover:bg-black/5";
+    "relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300";
+  const mainLinkActive = "text-black bg-gray-100";
+  const mainLinkIdle = "text-gray-600 hover:text-black hover:bg-gray-50";
 
   const actionLinkBase =
-    "px-3 py-2 rounded-md transition-colors hover:bg-black/5";
+    "px-3 py-2 rounded-lg transition-all duration-300 hover:bg-gray-100";
 
   // Close profile menu on outside click / Esc
   useEffect(() => {
@@ -30,7 +31,9 @@ export default function Navbar() {
       }
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+      }
     }
     document.addEventListener("click", onClick);
     document.addEventListener("keydown", onKey);
@@ -39,6 +42,14 @@ export default function Navbar() {
       document.removeEventListener("keydown", onKey);
     };
   }, []);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  }
 
   const firstName = user?.name?.split(" ")?.[0] ?? "";
   const initials = (
@@ -55,16 +66,16 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/60 backdrop-blur-md border-b border-black/10">
-      <nav className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+      <nav className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
         {/* Left: Brand */}
         <div className="flex items-center gap-3 flex-1">
           <Link
             to="/"
-            className="text-2xl font-extrabold tracking-wide select-none"
+            className="text-2xl font-bold tracking-wide select-none text-black hover:text-gray-700 transition-colors"
             aria-label="Rehman Stones — Home"
           >
-            Rehman Stones
+            <span className="font-black">RS</span>
           </Link>
 
           {/* Center: Main nav (desktop) */}
@@ -97,12 +108,36 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* Search bar integrated */}
+        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-4">
+          <div className="relative w-full">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:border-black transition-colors text-sm bg-gray-50"
+            />
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+              <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+        </form>
+
         {/* Right actions (desktop) */}
         <div className="hidden sm:flex items-center gap-2">
+
           <NavLink
             to="/track"
             className={({ isActive }) =>
-              `${actionLinkBase} ${isActive ? "bg-black/10" : ""}`
+              `${actionLinkBase} ${isActive ? "bg-gray-100 text-black" : ""}`
             }
           >
             Track Order
@@ -115,7 +150,7 @@ export default function Navbar() {
           <NavLink
             to="/cart"
             className={({ isActive }) =>
-              `relative ${actionLinkBase} ${isActive ? "bg-black/10" : ""}`
+              `relative ${actionLinkBase} ${isActive ? "bg-gray-100 text-black" : ""}`
             }
             aria-label="Cart"
             title="Cart"
@@ -136,33 +171,33 @@ export default function Navbar() {
               <circle cx="18" cy="20" r="1.6" fill="currentColor" />
             </svg>
             {totalQty > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 text-[10px] leading-none px-1.5 py-1 rounded-full bg-black text-white">
+              <span className="absolute -top-1.5 -right-1.5 text-[10px] leading-none px-2 py-1 rounded-full bg-black text-white font-bold">
                 {totalQty}
               </span>
             )}
           </NavLink>
 
           {/* Auth area (desktop) */}
-          {!user ? (
-            <NavLink
-              to="/login"
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-white font-medium transition ${
-                  isActive ? "bg-black/90" : "bg-black hover:opacity-90"
-                }`
-              }
-            >
-              Login
-            </NavLink>
+            {!user ? (
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `px-5 py-2.5 rounded-lg text-white font-semibold transition-all duration-300 ${
+                    isActive ? "bg-gray-800" : "bg-black hover:bg-gray-800"
+                  }`
+                }
+              >
+                Login
+              </NavLink>
           ) : (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-black/5"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
-                <span className="w-7 h-7 rounded-full bg-black text-white grid place-items-center text-xs">
+                <span className="w-8 h-8 rounded-full bg-black text-white grid place-items-center text-xs font-bold">
                   {initials}
                 </span>
                 <span className="text-sm font-medium text-gray-800">
@@ -180,7 +215,7 @@ export default function Navbar() {
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 w-56 rounded-xl bg-white ring-1 ring-gray-200 shadow-xl overflow-hidden"
+                  className="absolute right-0 mt-3 w-64 rounded-lg bg-white border border-gray-200 shadow-lg overflow-hidden fade-in"
                 >
                   <div className="px-3 py-2">
                     <div className="text-xs text-gray-500">Signed in as</div>
