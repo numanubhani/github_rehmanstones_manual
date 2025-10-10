@@ -19,6 +19,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hide scrollbar utility for mobile sliders */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Clean solid backgrounds - No gradients */
 .bg-primary {
   background-color: var(--brand-primary);

@@ -172,11 +172,11 @@ export default function Cart() {
           <p className="text-gray-500 text-sm mt-1">{items.length} {items.length === 1 ? 'item' : 'items'}</p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-[1fr_380px]">
           {/* LEFT: items list */}
           <div>
             {/* Top bar: select all + delete */}
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-gray-200">
               <label className="flex items-center gap-2 select-none cursor-pointer">
                 <input
                   type="checkbox"
@@ -208,74 +208,77 @@ export default function Cart() {
               {items.map((it) => (
                 <div
                   key={it.id}
-                  className="flex gap-4 pb-4 border-b border-gray-100 last:border-0"
+                  className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200"
                 >
-                  {/* checkbox */}
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 mt-1 rounded cursor-pointer accent-black flex-shrink-0"
-                    checked={selected.has(it.id)}
-                    onChange={() => toggleOne(it.id)}
-                  />
-
-                  {/* image */}
-                  <Link to={`/product/${it.id}`} className="relative group block flex-shrink-0">
-                    <img
-                      src={it.image}
-                      alt={it.name}
-                      className="w-24 h-24 object-cover rounded-md border border-gray-200 bg-gray-50 group-hover:border-gray-400 transition-colors"
+                  <div className="flex gap-3 sm:gap-4 flex-1">
+                    {/* checkbox */}
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 mt-1 rounded cursor-pointer accent-black flex-shrink-0"
+                      checked={selected.has(it.id)}
+                      onChange={() => toggleOne(it.id)}
                     />
-                  </Link>
 
-                  {/* Details */}
-                  <div className="flex-1 min-w-0">
-                    <Link
-                      to={`/product/${it.id}`}
-                      className="font-semibold text-black hover:text-gray-700 line-clamp-2 mb-2 block transition-colors"
-                      title={it.name}
-                    >
-                      {it.name}
+                    {/* image */}
+                    <Link to={`/product/${it.id}`} className="relative group block flex-shrink-0">
+                      <img
+                        src={it.image}
+                        alt={it.name}
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-gray-200 bg-gray-50 group-hover:border-gray-400 transition-colors"
+                      />
                     </Link>
-                    <div className="text-sm text-gray-500 mb-3 capitalize">{it.category}</div>
-                    
-                    <div className="flex items-center gap-4">
-                      <button
-                        className="text-sm text-gray-600 hover:text-black transition-colors"
-                        onClick={() => {
-                          if (!isInWishlist(it.id)) {
-                            addToWishlist({
-                              id: it.id,
-                              name: it.name,
-                              price: it.price,
-                              image: it.image,
-                              category: it.category,
-                            });
-                            toast.success("Saved to wishlist");
-                          }
-                        }}
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        to={`/product/${it.id}`}
+                        className="font-semibold text-black hover:text-gray-700 line-clamp-2 mb-1 sm:mb-2 block transition-colors"
+                        title={it.name}
                       >
-                        {isInWishlist(it.id) ? "♥ Saved" : "Save for later"}
-                      </button>
-                      <button
-                        className="text-sm text-gray-600 hover:text-red-600 transition-colors"
-                        onClick={() => {
-                          removeItem(it.id);
-                          toast.success("Removed from cart");
-                        }}
-                      >
-                        Remove
-                      </button>
+                        {it.name}
+                      </Link>
+                      <div className="text-sm text-gray-500 mb-2 sm:mb-3 capitalize">{it.category}</div>
+                      <div className="text-sm text-gray-500 mb-2 sm:hidden">{formatRs(it.price)} each</div>
+                      
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          className="text-xs sm:text-sm text-gray-600 hover:text-black transition-colors"
+                          onClick={() => {
+                            if (!isInWishlist(it.id)) {
+                              addToWishlist({
+                                id: it.id,
+                                name: it.name,
+                                price: it.price,
+                                image: it.image,
+                                category: it.category,
+                              });
+                              toast.success("Saved to wishlist");
+                            }
+                          }}
+                        >
+                          {isInWishlist(it.id) ? "♥ Saved" : "Save for later"}
+                        </button>
+                        <button
+                          className="text-xs sm:text-sm text-gray-600 hover:text-red-600 transition-colors"
+                          onClick={() => {
+                            removeItem(it.id);
+                            toast.success("Removed from cart");
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   {/* Price & Quantity */}
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-black mb-3">
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 sm:text-right border-t sm:border-t-0 pt-3 sm:pt-0 mt-2 sm:mt-0">
+                    <div className="text-lg sm:text-xl font-bold text-black sm:mb-3">
                       {formatRs(it.price * it.qty)}
                     </div>
-                    <div className="inline-flex items-center border border-gray-300 rounded-md overflow-hidden bg-white">
+                    <div className="inline-flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
                       <button
-                        className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         onClick={() => setQty(it.id, Math.max(1, it.qty - 1))}
                         disabled={it.qty <= 1}
                         aria-label="Decrease quantity"
@@ -284,9 +287,9 @@ export default function Cart() {
                           <path d="M5 12h14" />
                         </svg>
                       </button>
-                      <div className="w-12 h-9 flex items-center justify-center border-x border-gray-300 font-semibold text-sm">{it.qty}</div>
+                      <div className="w-10 h-8 sm:w-12 sm:h-9 flex items-center justify-center border-x border-gray-300 font-semibold text-sm">{it.qty}</div>
                       <button
-                        className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center hover:bg-gray-100 transition-colors"
                         onClick={() => setQty(it.id, it.qty + 1)}
                         aria-label="Increase quantity"
                       >
@@ -295,7 +298,7 @@ export default function Cart() {
                         </svg>
                       </button>
                     </div>
-                    <div className="text-xs text-gray-500 mt-2">{formatRs(it.price)} each</div>
+                    <div className="text-xs text-gray-500 hidden sm:block">{formatRs(it.price)} each</div>
                   </div>
                 </div>
               ))}
@@ -304,7 +307,7 @@ export default function Cart() {
 
           {/* RIGHT: order summary */}
           <aside className="lg:sticky lg:top-8 h-fit">
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200 shadow-sm">
               <h3 className="font-bold text-lg mb-4">Order Summary</h3>
 
               {/* Price Details */}
@@ -327,15 +330,15 @@ export default function Cart() {
 
               <div className="border-t border-gray-300 pt-4 mb-5">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-lg">Total</span>
-                  <span className="text-2xl font-bold">{formatRs(total)}</span>
+                  <span className="font-bold text-base sm:text-lg">Total</span>
+                  <span className="text-xl sm:text-2xl font-bold">{formatRs(total)}</span>
                 </div>
               </div>
 
               {/* Coupon */}
               <div className="mb-5">
                 <label className="text-sm font-medium text-gray-700 mb-2 block">Promo Code</label>
-                <div className="flex gap-2 mb-2">
+                <div className="flex flex-col sm:flex-row gap-2 mb-2">
                   <input
                     value={couponInput}
                     onChange={(e) => {
@@ -343,19 +346,19 @@ export default function Cart() {
                       if (couponError) setCouponError(null);
                     }}
                     placeholder="Enter code"
-                    className="flex-1 border border-gray-300 px-3 py-2.5 rounded-md text-sm outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all font-mono uppercase"
+                    className="flex-1 border border-gray-300 px-3 py-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all font-mono uppercase"
                   />
                   {!appliedCode ? (
                     <button
                       onClick={onApplyCoupon}
-                      className="px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-md font-semibold text-sm transition-colors"
+                      className="px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap"
                     >
                       Apply
                     </button>
                   ) : (
                     <button 
                       onClick={onRemoveCoupon} 
-                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold text-sm transition-colors"
+                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap"
                     >
                       Remove
                     </button>

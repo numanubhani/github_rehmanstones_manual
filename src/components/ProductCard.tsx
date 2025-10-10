@@ -38,8 +38,8 @@ export default function ProductCard({ product, onQuickView }: { product: Product
     <div className="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 hover:-translate-y-2 h-full flex flex-col border border-gray-200">
       {/* Discount badge */}
       {discount > 0 && (
-        <div className="absolute top-3 left-3 z-10">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-lg">
             -{discount}%
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
       {/* Quick View button */}
       {onQuickView && (
         <button
-          className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+          className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -56,7 +56,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
           }}
           aria-label="Quick view"
         >
-          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
@@ -65,8 +65,8 @@ export default function ProductCard({ product, onQuickView }: { product: Product
 
       {/* Wishlist button */}
       <button
-        className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full backdrop-blur-sm shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 ${
-          inWishlist ? "bg-red-500 opacity-100" : "bg-white/90"
+        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full backdrop-blur-sm shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+          inWishlist ? "bg-red-500 opacity-100" : "bg-white/90 opacity-0 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         }`}
         onClick={(e) => {
           e.preventDefault();
@@ -87,7 +87,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
         }}
         aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill={inWishlist ? "white" : "none"} className={inWishlist ? "text-white" : "text-gray-700"}>
+        <svg width="16" height="16" viewBox="0 0 24 24" className={`sm:w-[18px] sm:h-[18px] ${inWishlist ? "text-white" : "text-gray-700"}`} fill={inWishlist ? "white" : "none"}>
           <path
             d="M12 21s-8-4.438-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.562-8 11-8 11Z"
             stroke="currentColor"
@@ -123,18 +123,18 @@ export default function ProductCard({ product, onQuickView }: { product: Product
       </div>
 
       {/* Body */}
-      <div className="p-4 flex flex-col flex-1 relative z-[2]">
+      <div className="p-3 sm:p-4 flex flex-col flex-1 relative z-[2]">
         {/* Category badge */}
-        <div className="mb-3">
-          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-gray-100 text-gray-700">
-            <div className="w-2 h-2 rounded-full bg-gray-600"></div>
+        <div className="mb-2 sm:mb-3">
+          <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-full bg-gray-100 text-gray-700">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gray-600"></div>
             {product.category}
           </span>
         </div>
 
         {/* Title */}
         <h3
-          className="text-base font-bold text-gray-900 leading-tight min-h-[44px] mb-3 group-hover:text-black transition-colors"
+          className="text-sm sm:text-base font-bold text-gray-900 leading-tight min-h-[40px] sm:min-h-[44px] mb-2 sm:mb-3 group-hover:text-black transition-colors"
           style={{
             display: "-webkit-box",
             WebkitLineClamp: 2,
@@ -148,16 +148,16 @@ export default function ProductCard({ product, onQuickView }: { product: Product
 
         {/* Rating */}
         {(product.rating || product.ratingCount) && (
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
             <div className="flex items-center">
               {Array.from({ length: 5 }, (_, i) => (
                 <svg
                   key={i}
-                  width="14"
-                  height="14"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
+                  className={`${i < Math.floor(product.rating || 0) ? "text-yellow-400" : "text-gray-300"} sm:w-[14px] sm:h-[14px]`}
                   fill={i < Math.floor(product.rating || 0) ? "currentColor" : "none"}
-                  className={i < Math.floor(product.rating || 0) ? "text-yellow-400" : "text-gray-300"}
                   stroke="currentColor"
                   strokeWidth="1.5"
                 >
@@ -166,19 +166,19 @@ export default function ProductCard({ product, onQuickView }: { product: Product
               ))}
             </div>
             {product.ratingCount && (
-              <span className="text-sm text-gray-600 font-medium">({product.ratingCount})</span>
+              <span className="text-xs sm:text-sm text-gray-600 font-medium">({product.ratingCount})</span>
             )}
           </div>
         )}
 
         {/* Price */}
         <div className="mt-auto">
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-2xl font-black text-gray-900">
+          <div className="flex items-baseline gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+            <span className="text-lg sm:text-2xl font-black text-gray-900">
               Rs.{product.price.toLocaleString()}
             </span>
             {product.oldPrice && (
-              <span className="text-sm line-through text-gray-500">
+              <span className="text-xs sm:text-sm line-through text-gray-500">
                 Rs.{product.oldPrice.toLocaleString()}
               </span>
             )}
@@ -191,7 +191,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
               e.stopPropagation();
               handleAdd();
             }}
-            className="w-full py-3 px-4 bg-black hover:bg-gray-800 text-white text-sm font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+            className="w-full py-2 sm:py-3 px-3 sm:px-4 bg-black hover:bg-gray-800 text-white text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
           >
             {product.category === "ring" ? "Choose Size" : "Add to Cart"}
           </button>

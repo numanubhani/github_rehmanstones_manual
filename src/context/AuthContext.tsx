@@ -109,8 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async ({ email, password }: LoginArgs): Promise<boolean> => {
     const emailLower = email.trim().toLowerCase();
     
-    // Check for default admin credentials
-    if (emailLower === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
+    // Default admin: allow any password in demo
+    if (emailLower === DEFAULT_ADMIN.email) {
       setUser(DEFAULT_ADMIN.user);
       toast.success(`Welcome back, Admin!`);
       return true;

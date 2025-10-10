@@ -1,5 +1,6 @@
 // src/pages/Home.tsx
 import { useMemo, useState, useEffect } from "react";
+import { getSlides, type Slide as AdminSlide } from "../utils/slides";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import FilterTabs, { type FilterKey } from "../components/FilterTabs";
@@ -99,23 +100,21 @@ export default function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
-  // Carousel images - using product images
-  const carouselImages = [
-    img1,
-    img2,
-    img3,
-    img4,
-    img5,
-    img6,
+  // Admin-managed carousel slides fallback to product images if none
+  const defaultSlides: AdminSlide[] = [
+    { id: "1", image: img1, headline: "Premium Silver Jewelry", subhead: "Handcrafted 925 silver & certified gemstones" },
+    { id: "2", image: img2, headline: "Aqeeq Collection", subhead: "Timeless agate rings, crafted to perfection" },
+    { id: "3", image: img3, headline: "Elegant Pendants", subhead: "Minimal designs with lasting shine" },
   ];
+  const adminSlides = getSlides(defaultSlides);
 
   // Auto-play carousel
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+      setCurrentSlide((prev) => (prev + 1) % adminSlides.length);
     }, 3000); // Change every 3 seconds
     return () => clearInterval(timer);
-  }, [carouselImages.length]);
+  }, [adminSlides.length]);
 
 
   const filtered = useMemo(() => {
@@ -184,83 +183,93 @@ export default function Home() {
         <div className="relative bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="grid md:grid-cols-2 gap-0">
             {/* Left: Content */}
-            <div className="px-8 py-12 md:py-16 flex flex-col justify-center">
-              <h1 className="text-4xl md:text-5xl font-black text-black leading-tight mb-4">
+            <div className="px-4 py-8 sm:px-6 sm:py-10 md:px-8 md:py-16 flex flex-col justify-center order-2 md:order-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black leading-tight mb-3 sm:mb-4">
                 Premium Silver Jewelry
               </h1>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed">
                 Authentic 925 silver rings and certified gemstones. Handcrafted excellence, delivered nationwide.
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                 <a
                   href="#products"
-                  className="inline-block bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="inline-block text-center bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Shop Collection
                 </a>
                 <a
                   href="/about"
-                  className="inline-block bg-gray-100 hover:bg-gray-200 text-black px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="inline-block text-center bg-gray-100 hover:bg-gray-200 text-black px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Learn More
                 </a>
               </div>
             </div>
 
-            {/* Right: Carousel */}
-            <div className="relative h-64 md:h-auto bg-gray-100 overflow-hidden">
-              {/* Carousel Images */}
-              <div className="relative w-full h-full">
-                {carouselImages.map((image, index) => (
+            {/* Right: Carousel (admin-managed) */}
+            <div className="relative h-56 sm:h-64 md:h-auto bg-gray-100 overflow-hidden order-1 md:order-2">
+              {/* Slides */}
+              <div className="relative w-full h-full min-h-[300px] md:min-h-[400px]">
+                {adminSlides.map((s, index) => (
                   <div
-                    key={index}
+                    key={String(s.id)}
                     className={`absolute inset-0 transition-opacity duration-700 ${
                       index === currentSlide ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
                     <img
-                      src={image}
-                      alt={`Product ${index + 1}`}
+                      src={s.image}
+                      alt=""
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    {(s.headline || s.subhead) && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4 sm:px-6 text-center">
+                        {s.headline && (
+                          <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight drop-shadow-lg">
+                            {s.headline}
+                          </h2>
+                        )}
+                        {s.subhead && (
+                          <p className="mt-2 sm:mt-3 max-w-2xl text-xs sm:text-sm md:text-base opacity-90 drop-shadow">
+                            {s.subhead}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
-
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-
-                {/* Navigation Dots */}
-                <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2">
-                  {carouselImages.map((_, index) => (
+                {/* Dots */}
+                <div className="absolute bottom-3 sm:bottom-4 left-0 right-0 flex items-center justify-center gap-1.5 sm:gap-2 z-10">
+                  {adminSlides.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentSlide(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
                         index === currentSlide
-                          ? 'bg-white w-8'
-                          : 'bg-white/50 hover:bg-white/75'
+                          ? 'bg-white w-6 sm:w-8'
+                          : 'bg-white/50 hover:bg-white/75 w-1.5 sm:w-2'
                       }`}
                       aria-label={`Go to slide ${index + 1}`}
                     />
                   ))}
                 </div>
-
-                {/* Navigation Arrows */}
+                {/* Arrows */}
                 <button
-                  onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg"
+                  onClick={() => setCurrentSlide((prev) => (prev - 1 + adminSlides.length) % adminSlides.length)}
+                  className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-9 sm:h-9 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg z-10"
                   aria-label="Previous slide"
                 >
-                  <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 <button
-                  onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg"
+                  onClick={() => setCurrentSlide((prev) => (prev + 1) % adminSlides.length)}
+                  className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-9 sm:h-9 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg z-10"
                   aria-label="Next slide"
                 >
-                  <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -288,8 +297,8 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Icon name="shield" />
             <div>
-              <div className="font-semibold">Genuine 925 Silver</div>
-              <div className="text-sm text-gray-500">
+              <div className="font-semibold text-sm sm:text-base">Genuine 925 Silver</div>
+              <div className="text-xs sm:text-sm text-gray-500">
                 Nickel-free & hypoallergenic
               </div>
             </div>
@@ -299,8 +308,8 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Icon name="truck" />
             <div>
-              <div className="font-semibold">Fast Nationwide Delivery</div>
-              <div className="text-sm text-gray-500">Free over Rs. 10,000</div>
+              <div className="font-semibold text-sm sm:text-base">Fast Nationwide Delivery</div>
+              <div className="text-xs sm:text-sm text-gray-500">Free over Rs. 10,000</div>
             </div>
           </div>
         </Card>
@@ -308,8 +317,8 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Icon name="refresh" />
             <div>
-              <div className="font-semibold">7-Day Easy Returns</div>
-              <div className="text-sm text-gray-500">Shop with confidence</div>
+              <div className="font-semibold text-sm sm:text-base">7-Day Easy Returns</div>
+              <div className="text-xs sm:text-sm text-gray-500">Shop with confidence</div>
             </div>
           </div>
         </Card>
@@ -325,10 +334,10 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -338,11 +347,11 @@ export default function Home() {
             <FilterTabs value={filter} onChange={setFilter} />
             <div className="hidden sm:block h-6 w-px bg-gray-200" />
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">Sort</label>
+              <label className="text-sm text-gray-600 whitespace-nowrap">Sort</label>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="rounded-lg ring-1 ring-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black"
+                className="rounded-lg ring-1 ring-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black flex-1 sm:flex-initial"
               >
                 <option value="Newest">Newest</option>
                 <option value="PriceLow">Price: Low to High</option>
@@ -414,7 +423,7 @@ export default function Home() {
       </div>
 
       {/* Product grid: 5 per row on large */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {display.map((p) => (
           <ProductCard key={p.id} product={p} onQuickView={setQuickViewProduct} />
         ))}

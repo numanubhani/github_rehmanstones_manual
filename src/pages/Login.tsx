@@ -26,17 +26,18 @@ export default function Login() {
       const success = await login({ email, password });
 
       if (success) {
-        // Persist selected role for the rest of the app
+        // Persist selected role UI state (optional)
         localStorage.setItem("role", role);
 
-        // Redirect logic:
-        // 1) if redirect=? is present use that,
-        // 2) otherwise, admins -> /admin, users -> /
+        // Always send real admin to /admin regardless of toggle
+        const emailLower = email.trim().toLowerCase();
+        const isRealAdminLogin = emailLower === "admin@rehmanstones.com";
+
         const afterRedirect = params.get("redirect");
         if (afterRedirect) {
           navigate(afterRedirect);
         } else {
-          navigate(role === "admin" ? "/admin" : "/");
+          navigate(isRealAdminLogin ? "/admin" : "/");
         }
       }
     } catch (err: any) {
