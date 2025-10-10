@@ -80,15 +80,6 @@ function inferRole(email: string): Role {
   return "user";
 }
 
-function nameFromEmail(email: string) {
-  const base = email.split("@")[0].replace(/[._-]+/g, " ");
-  return base
-    .split(" ")
-    .filter(Boolean)
-    .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
 function readUser(): User | null {
   try {
     const raw = localStorage.getItem(LS_USER);
