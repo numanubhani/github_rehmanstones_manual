@@ -12,6 +12,7 @@ import SocialShare from "../components/SocialShare";
 import WhatsAppButton from "../components/WhatsAppButton";
 import toast from "react-hot-toast";
 
+
 export default function ProductPage() {
   const { id } = useParams();
   const product = getProductById(id!);
