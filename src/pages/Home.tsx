@@ -116,14 +116,6 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [carouselImages.length]);
 
-  const counts = useMemo(
-    () => ({
-      all: ALL_PRODUCTS.length,
-      rings: ALL_PRODUCTS.filter((p) => p.category === "ring").length,
-      gemstones: ALL_PRODUCTS.filter((p) => p.category === "gemstone").length,
-    }),
-    []
-  );
 
   const filtered = useMemo(() => {
     let products = ALL_PRODUCTS;
