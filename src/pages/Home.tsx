@@ -4,6 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import FilterTabs, { type FilterKey } from "../components/FilterTabs";
 import type { Product } from "../data/products";
+import toast from "react-hot-toast";
+import QuickView from "../components/QuickView";
 
 /* Local product images (Vite will hash & optimize) */
 import img1 from "../assets/products/1 (1).jpg";
@@ -91,6 +93,10 @@ export default function Home() {
   const [filter, setFilter] = useState<FilterKey>("All");
   const [sort, setSort] = useState<SortKey>("Newest");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
+  const [minRating, setMinRating] = useState<number>(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   // Carousel images - using product images
   const carouselImages = [
@@ -133,11 +139,26 @@ export default function Home() {
     }
     
     // Apply category filter
-    if (filter === "All") return products;
-    if (filter === "Rings")
-      return products.filter((p) => p.category === "ring");
-    return products.filter((p) => p.category === "gemstone");
-  }, [filter, searchQuery]);
+    if (filter !== "All") {
+      if (filter === "Rings") {
+        products = products.filter((p) => p.category === "ring");
+      } else {
+        products = products.filter((p) => p.category === "gemstone");
+      }
+    }
+
+    // Apply price range filter
+    products = products.filter(
+      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
+    );
+
+    // Apply rating filter
+    if (minRating > 0) {
+      products = products.filter((p) => (p.rating ?? 0) >= minRating);
+    }
+    
+    return products;
+  }, [filter, searchQuery, priceRange, minRating]);
 
   const display = useMemo(() => {
     const list = [...filtered];
@@ -296,41 +317,114 @@ export default function Home() {
       </div>
 
       {/* Heading + filter + sort */}
-      <div id="products" className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold">Latest Products</h2>
-          <p className="text-gray-500 text-sm mt-0.5">
-            {filter === "All" && `${counts.all} items`}
-            {filter === "Rings" && `${counts.rings} rings`}
-            {filter === "GemStones" && `${counts.gemstones} gemstones`}
-          </p>
-        </div>
+      <div id="products" className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold">Latest Products</h2>
+            <p className="text-gray-500 text-sm mt-0.5">
+              {display.length} products found
+            </p>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <FilterTabs value={filter} onChange={setFilter} />
-          <div className="hidden sm:block h-6 w-px bg-gray-200" />
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Sort</label>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-lg ring-1 ring-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black"
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors"
             >
-              <option value="Newest">Newest</option>
-              <option value="PriceLow">Price: Low to High</option>
-              <option value="PriceHigh">Price: High to Low</option>
-              <option value="Rating">Top Rated</option>
-            </select>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              Filters
+            </button>
+            <FilterTabs value={filter} onChange={setFilter} />
+            <div className="hidden sm:block h-6 w-px bg-gray-200" />
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Sort</label>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="rounded-lg ring-1 ring-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black"
+              >
+                <option value="Newest">Newest</option>
+                <option value="PriceLow">Price: Low to High</option>
+                <option value="PriceHigh">Price: High to Low</option>
+                <option value="Rating">Top Rated</option>
+              </select>
+            </div>
           </div>
         </div>
+
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-lg">
+            <div className="grid sm:grid-cols-2 gap-6">
+              {/* Price Range */}
+              <div>
+                <label className="block font-bold text-sm text-black mb-3">Price Range</label>
+                <div className="space-y-3">
+                  <input
+                    type="range"
+                    min="0"
+                    max="10000"
+                    step="500"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-sm">
+                    <span className="font-semibold">Rs. 0</span>
+                    <span className="font-bold text-black">Rs. {priceRange[1].toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Minimum Rating */}
+              <div>
+                <label className="block font-bold text-sm text-black mb-3">Minimum Rating</label>
+                <div className="flex gap-2">
+                  {[0, 3, 4, 4.5].map((rating) => (
+                    <button
+                      key={rating}
+                      onClick={() => setMinRating(rating)}
+                      className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all ${
+                        minRating === rating
+                          ? "bg-black text-white"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      {rating === 0 ? "All" : `${rating}★+`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Reset Filters */}
+            <button
+              onClick={() => {
+                setPriceRange([0, 10000]);
+                setMinRating(0);
+                toast.success("Filters reset");
+              }}
+              className="mt-4 w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black rounded-lg font-semibold text-sm transition-colors"
+            >
+              Reset Filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Product grid: 5 per row on large */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {display.map((p) => (
-          <ProductCard key={p.id} product={p} />
+          <ProductCard key={p.id} product={p} onQuickView={setQuickViewProduct} />
         ))}
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickView product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   );
 }

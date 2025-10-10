@@ -1,9 +1,13 @@
 // src/pages/ProductPage.tsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById, getRelated } from "../data/products";
 import type { Product } from "../data/products";
 import { useCart } from "../context/CartContext";
+import { addRecentlyViewed } from "../utils/recentlyViewed";
+import RecentlyViewed from "../components/RecentlyViewed";
+import SizeGuide from "../components/SizeGuide";
+import ProductReviews from "../components/ProductReviews";
 
 /** Brand palette */
 const BRAND_DARK = "#111111"; // buttons / headings
@@ -29,6 +33,19 @@ export default function ProductPage() {
   }
 
   const related = useMemo(() => getRelated(product), [product]);
+
+  // Track recently viewed
+  useEffect(() => {
+    if (product) {
+      addRecentlyViewed({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        category: product.category,
+      });
+    }
+  }, [product]);
 
   // --- size state (only for rings) ---
   const isRing = product.category === "ring";
@@ -176,8 +193,11 @@ export default function ProductPage() {
             {/* size selector (rings only) */}
             {isRing && (
               <div className="mt-6">
-                <div className="text-sm font-medium text-gray-800 mb-2">
-                  Select Size
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium text-gray-800">
+                    Select Size
+                  </div>
+                  <SizeGuide />
                 </div>
                 <SizeGrid selected={size} onSelect={setSize} />
                 {sizeRequired && (
@@ -297,31 +317,17 @@ export default function ProductPage() {
                   ))}
                 </div>
               </div>
-              <div className="mt-6 text-gray-500">
-                This product has no reviews yet.
-              </div>
             </div>
+          </section>
 
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold">
-                Questions about this product
-              </h2>
-              <div className="mt-3 flex gap-2">
-                <input
-                  className="flex-1 border px-3 py-2"
-                  placeholder="Enter your question(s) here"
-                />
-                <button
-                  className="px-4 py-2 text-white"
-                  style={{ background: BRAND_ACCENT }}
-                >
-                  Ask Questions
-                </button>
-              </div>
-              <div className="mt-6 text-gray-500">
-                There are no questions yet.
-              </div>
-            </div>
+          {/* REVIEWS */}
+          <section className="lg:col-span-8">
+            <ProductReviews productId={product.id} />
+          </section>
+
+          {/* RECENTLY VIEWED */}
+          <section className="lg:col-span-12 mb-6">
+            <RecentlyViewed excludeId={product.id} />
           </section>
 
           {/* RELATED */}

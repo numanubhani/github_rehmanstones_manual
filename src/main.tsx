@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import App from "./App";
 import "./style.css";
 
@@ -13,8 +14,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          {/* Mount once, globally */}
-          <Toaster
+          <WishlistProvider>
+            {/* Mount once, globally */}
+            <Toaster
             position="bottom-right"
             containerStyle={{ zIndex: 999999 }}
             toastOptions={{
@@ -28,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             }}
           />
           <App />
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

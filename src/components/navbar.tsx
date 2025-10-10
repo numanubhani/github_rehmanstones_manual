@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import InstallAppButton from "./InstallAppButton";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function Navbar() {
 
   const { totalQty } = useCart();
   const { user, logout } = useAuth(); // <-- expects shape like: { name, email, role: 'user' | 'admin' }
+  const { wishlistItems } = useWishlist();
 
   const mainLinkBase =
     "relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300";
@@ -145,6 +147,32 @@ export default function Navbar() {
 
           {/* Optional desktop Install button */}
           <InstallAppButton />
+
+          {/* Wishlist */}
+          <NavLink
+            to="/wishlist"
+            className={({ isActive }) =>
+              `relative ${actionLinkBase} ${isActive ? "bg-gray-100 text-black" : ""}`
+            }
+            aria-label="Wishlist"
+            title="Wishlist"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+            </svg>
+            {wishlistItems.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 text-[10px] leading-none px-2 py-1 rounded-full bg-red-500 text-white font-bold">
+                {wishlistItems.length}
+              </span>
+            )}
+          </NavLink>
 
           {/* Cart */}
           <NavLink
