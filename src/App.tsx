@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import Rings from "./pages/Rings";
 import Gemstones from "./pages/Gemstones";
@@ -31,6 +32,7 @@ import Wishlist from "./pages/Wishlist";
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Navbar />
       {/* Global admin-controlled promo modal */}
       <SiteModal />
