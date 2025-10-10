@@ -15,7 +15,7 @@ const formatRs = (n: number) => `Rs. ${n.toLocaleString("en-PK")}`;
 
 export default function Cart() {
   const navigate = useNavigate();
-  const { items, setQty, removeItem, clear } = useCart();
+  const { items, setQty, removeItem } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
 
   // selection state (defaults to all items selected)
@@ -62,14 +62,10 @@ export default function Cart() {
   const subtotal = itemsSubtotal(selectedItems);
   const shippingFee = 0;
 
-  const { discount, discountLabel } = useMemo(() => {
-    if (!appliedCode) return { discount: 0, discountLabel: "" };
+  const discount = useMemo(() => {
+    if (!appliedCode) return 0;
     const res = applyCoupon(selectedItems, appliedCode);
-    if (res.ok) {
-      const label = `${res.coupon.code} • ${res.coupon.label}`;
-      return { discount: res.discount, discountLabel: label };
-    }
-    return { discount: 0, discountLabel: "" };
+    return res.ok ? res.discount : 0;
   }, [selectedItems, appliedCode]);
 
   const total = Math.max(0, subtotal - discount + shippingFee);
@@ -154,320 +150,245 @@ export default function Cart() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-black text-black mb-2">Shopping Cart</h1>
-        <p className="text-gray-600">{items.length} {items.length === 1 ? 'item' : 'items'} in your cart</p>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
-        {/* LEFT: items list */}
-        <div className="space-y-4">
-          {/* Top bar: select all + delete */}
-          <div className="flex items-center justify-between bg-white rounded-xl px-6 py-4 border border-gray-200 shadow-sm">
-            <label className="flex items-center gap-3 select-none cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-5 h-5 rounded cursor-pointer"
-                checked={allSelected}
-                onChange={toggleAll}
-              />
-              <span className="font-bold text-black">
-                Select All ({items.length} {items.length === 1 ? 'Item' : 'Items'})
-              </span>
-            </label>
-            <button
-              className="text-red-600 hover:text-red-700 inline-flex items-center gap-2 font-semibold text-sm transition-colors"
-              onClick={() => {
-                if (selectedItems.length === 0) {
-                  toast.error("No items selected");
-                  return;
-                }
-                selectedItems.forEach((it) => removeItem(it.id));
-                toast.success(`${selectedItems.length} item(s) removed`);
-              }}
-              title="Delete selected"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete Selected
-            </button>
-          </div>
-
-          {/* Items */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-md overflow-hidden">
-          {items.map((it, idx) => (
-            <div
-              key={it.id}
-              className={`px-6 py-5 ${idx !== items.length - 1 ? "border-b border-gray-200" : ""} hover:bg-gray-50 transition-colors`}
-            >
-              <div className="grid grid-cols-[auto_100px_1fr_auto] gap-5 items-center">
-                {/* checkbox */}
-                <input
-                  type="checkbox"
-                  className="w-5 h-5 rounded cursor-pointer"
-                  checked={selected.has(it.id)}
-                  onChange={() => toggleOne(it.id)}
-                />
-
-                {/* image */}
-                <div className="relative">
-                  <img
-                    src={it.image}
-                    alt={it.name}
-                    className="w-24 h-24 object-cover rounded-lg border border-gray-200 bg-gray-50"
-                  />
-                </div>
-
-                {/* title + meta + actions */}
-                <div className="min-w-0 flex flex-col">
-                  <Link
-                    to={`/product/${it.id}`}
-                    className="block text-base font-bold hover:text-gray-700 line-clamp-2 mb-1 transition-colors"
-                    title={it.name}
-                  >
-                    {it.name}
-                  </Link>
-                  <div className="text-sm text-gray-600 mb-3">
-                    <span className="capitalize font-medium">{it.category}</span>
-                  </div>
-                  <div className="flex items-center gap-4 mt-auto">
-                    <button
-                      className={`flex items-center gap-1.5 text-sm font-semibold transition-colors ${
-                        isInWishlist(it.id)
-                          ? "text-red-500 hover:text-red-600"
-                          : "text-gray-600 hover:text-black"
-                      }`}
-                      onClick={() => {
-                        if (!isInWishlist(it.id)) {
-                          addToWishlist({
-                            id: it.id,
-                            name: it.name,
-                            price: it.price,
-                            image: it.image,
-                            category: it.category,
-                          });
-                          toast.success("Moved to wishlist!");
-                        }
-                      }}
-                      title="Move to wishlist"
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill={isInWishlist(it.id) ? "currentColor" : "none"}
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      {isInWishlist(it.id) ? "In Wishlist" : "Move to Wishlist"}
-                    </button>
-                    <button
-                      className="flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700 font-semibold transition-colors"
-                      title="Remove from cart"
-                      onClick={() => {
-                        removeItem(it.id);
-                        toast.success("Item removed from cart");
-                      }}
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Remove
-                    </button>
-                  </div>
-                </div>
-
-                {/* price + qty */}
-                <div className="justify-self-end text-right space-y-3">
-                  <div className="text-xl font-black text-black">
-                    {formatRs(it.price * it.qty)}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {formatRs(it.price)} each
-                  </div>
-                  <div className="inline-flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
-                    <button
-                      className="w-10 h-10 grid place-items-center hover:bg-gray-100 font-bold text-lg transition-colors"
-                      onClick={() => setQty(it.id, Math.max(1, it.qty - 1))}
-                      aria-label="Decrease quantity"
-                    >
-                      −
-                    </button>
-                    <div className="w-12 text-center select-none font-bold text-black">{it.qty}</div>
-                    <button
-                      className="w-10 h-10 grid place-items-center hover:bg-gray-100 font-bold text-lg transition-colors"
-                      onClick={() => setQty(it.id, it.qty + 1)}
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          </div>
-
-          {/* Continue Shopping */}
-          <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-black hover:text-gray-700 font-semibold transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Continue Shopping
-          </Link>
-          </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-6 pb-4 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-black">Your Cart</h1>
+          <p className="text-gray-500 text-sm mt-1">{items.length} {items.length === 1 ? 'item' : 'items'}</p>
         </div>
 
-        {/* RIGHT: order summary */}
-        <aside className="lg:sticky lg:top-24 h-fit">
-        <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-black to-gray-800 p-6 text-white">
-            <h2 className="text-2xl font-black mb-1">Order Summary</h2>
-            <p className="text-gray-300 text-sm">{totalQty} {totalQty === 1 ? 'item' : 'items'} selected</p>
+        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+          {/* LEFT: items list */}
+          <div>
+            {/* Top bar: select all + delete */}
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+              <label className="flex items-center gap-2 select-none cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded cursor-pointer accent-black"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                />
+                <span className="text-sm text-gray-700">
+                  Select all ({items.length})
+                </span>
+              </label>
+              {selectedItems.length > 0 && (
+                <button
+                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                  onClick={() => {
+                    if (window.confirm(`Remove ${selectedItems.length} selected item(s)?`)) {
+                      selectedItems.forEach((it) => removeItem(it.id));
+                      toast.success(`Removed ${selectedItems.length} item(s)`);
+                    }
+                  }}
+                >
+                  Delete selected
+                </button>
+              )}
+            </div>
+
+            {/* Items */}
+            <div className="space-y-4">
+              {items.map((it) => (
+                <div
+                  key={it.id}
+                  className="flex gap-4 pb-4 border-b border-gray-100 last:border-0"
+                >
+                  {/* checkbox */}
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 mt-1 rounded cursor-pointer accent-black flex-shrink-0"
+                    checked={selected.has(it.id)}
+                    onChange={() => toggleOne(it.id)}
+                  />
+
+                  {/* image */}
+                  <Link to={`/product/${it.id}`} className="relative group block flex-shrink-0">
+                    <img
+                      src={it.image}
+                      alt={it.name}
+                      className="w-24 h-24 object-cover rounded-md border border-gray-200 bg-gray-50 group-hover:border-gray-400 transition-colors"
+                    />
+                  </Link>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      to={`/product/${it.id}`}
+                      className="font-semibold text-black hover:text-gray-700 line-clamp-2 mb-2 block transition-colors"
+                      title={it.name}
+                    >
+                      {it.name}
+                    </Link>
+                    <div className="text-sm text-gray-500 mb-3 capitalize">{it.category}</div>
+                    
+                    <div className="flex items-center gap-4">
+                      <button
+                        className="text-sm text-gray-600 hover:text-black transition-colors"
+                        onClick={() => {
+                          if (!isInWishlist(it.id)) {
+                            addToWishlist({
+                              id: it.id,
+                              name: it.name,
+                              price: it.price,
+                              image: it.image,
+                              category: it.category,
+                            });
+                            toast.success("Saved to wishlist");
+                          }
+                        }}
+                      >
+                        {isInWishlist(it.id) ? "♥ Saved" : "Save for later"}
+                      </button>
+                      <button
+                        className="text-sm text-gray-600 hover:text-red-600 transition-colors"
+                        onClick={() => {
+                          removeItem(it.id);
+                          toast.success("Removed from cart");
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Price & Quantity */}
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-black mb-3">
+                      {formatRs(it.price * it.qty)}
+                    </div>
+                    <div className="inline-flex items-center border border-gray-300 rounded-md overflow-hidden bg-white">
+                      <button
+                        className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        onClick={() => setQty(it.id, Math.max(1, it.qty - 1))}
+                        disabled={it.qty <= 1}
+                        aria-label="Decrease quantity"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M5 12h14" />
+                        </svg>
+                      </button>
+                      <div className="w-12 h-9 flex items-center justify-center border-x border-gray-300 font-semibold text-sm">{it.qty}</div>
+                      <button
+                        className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        onClick={() => setQty(it.id, it.qty + 1)}
+                        aria-label="Increase quantity"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 5v14m-7-7h14" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">{formatRs(it.price)} each</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="p-6 space-y-4">
-            {/* Price Breakdown */}
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal ({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
-                <span className="font-bold text-black">{formatRs(subtotal)}</span>
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span className="font-semibold">Coupon Discount</span>
-                  <span className="font-bold">- {formatRs(discount)}</span>
+          {/* RIGHT: order summary */}
+          <aside className="lg:sticky lg:top-8 h-fit">
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <h3 className="font-bold text-lg mb-4">Order Summary</h3>
+
+              {/* Price Details */}
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal ({totalQty} items)</span>
+                  <span className="font-semibold">{formatRs(subtotal)}</span>
                 </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-gray-600">Shipping Fee</span>
-                <span className="font-bold text-green-600">{shippingFee === 0 ? "FREE" : formatRs(shippingFee)}</span>
+                {discount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Discount</span>
+                    <span className="font-semibold">-{formatRs(discount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-semibold text-green-600">{shippingFee === 0 ? "FREE" : formatRs(shippingFee)}</span>
+                </div>
               </div>
-            </div>
 
-            <div className="border-t-2 border-gray-200 pt-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-black text-black">Total</span>
-                <span className="text-2xl font-black text-black">{formatRs(total)}</span>
+              <div className="border-t border-gray-300 pt-4 mb-5">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-lg">Total</span>
+                  <span className="text-2xl font-bold">{formatRs(total)}</span>
+                </div>
               </div>
-            </div>
 
-            {/* Coupon UI */}
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="block text-sm font-bold text-black mb-3">
-                Have a Coupon Code?
-              </label>
-              <div className="flex gap-2">
-                <input
-                  value={couponInput}
-                  onChange={(e) => {
-                    setCouponInput(e.target.value.toUpperCase());
-                    if (couponError) setCouponError(null);
-                  }}
-                  placeholder="Enter code"
-                  className="flex-1 border-2 border-gray-300 px-4 py-2 rounded-lg outline-none focus:border-black transition-all font-mono font-bold text-sm"
-                  aria-invalid={couponError ? "true" : "false"}
-                  aria-describedby={couponError ? "coupon-error" : undefined}
-                />
-                {!appliedCode ? (
-                  <button
-                    onClick={onApplyCoupon}
-                    className="px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-bold text-sm transition-colors"
-                  >
-                    Apply
-                  </button>
+              {/* Coupon */}
+              <div className="mb-5">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Promo Code</label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value.toUpperCase());
+                      if (couponError) setCouponError(null);
+                    }}
+                    placeholder="Enter code"
+                    className="flex-1 border border-gray-300 px-3 py-2.5 rounded-md text-sm outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all font-mono uppercase"
+                  />
+                  {!appliedCode ? (
+                    <button
+                      onClick={onApplyCoupon}
+                      className="px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-md font-semibold text-sm transition-colors"
+                    >
+                      Apply
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={onRemoveCoupon} 
+                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold text-sm transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                {couponError ? (
+                  <p className="text-xs text-red-600 mt-1">{couponError}</p>
+                ) : appliedCoupon ? (
+                  <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {appliedCoupon.code} applied
+                  </p>
                 ) : (
-                  <button 
-                    onClick={onRemoveCoupon} 
-                    className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-bold text-sm transition-colors"
-                  >
-                    Remove
-                  </button>
+                  <p className="text-xs text-gray-500 mt-1">Try code: <span className="font-mono font-semibold">SAVE10</span></p>
                 )}
               </div>
 
-              {/* Inline message area */}
-              {couponError ? (
-                <p
-                  id="coupon-error"
-                  className="mt-2 text-xs text-red-600 font-semibold"
-                  aria-live="polite"
-                >
-                  ⚠ {couponError}
-                </p>
-              ) : appliedCoupon ? (
-                <p className="mt-2 text-xs text-green-700 font-semibold bg-green-50 px-3 py-2 rounded-lg">
-                  ✓ {appliedCoupon.code} applied — {appliedCoupon.label}
-                </p>
-              ) : (
-                <p className="mt-2 text-xs text-gray-500">
-                  Try: <code className="bg-gray-200 px-2 py-0.5 rounded font-mono font-bold">SAVE10</code>
-                </p>
-              )}
-            </div>
+              {/* Checkout Button */}
+              <button
+                className="w-full py-3.5 bg-black hover:bg-gray-900 text-white font-semibold rounded-md transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => navigate("/checkout")}
+                disabled={selectedItems.length === 0}
+              >
+                Proceed to Checkout
+              </button>
 
-            {/* Checkout Button */}
-            <button
-              className="w-full py-4 bg-black hover:bg-gray-800 text-white font-black text-base rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => navigate("/checkout")}
-              disabled={selectedItems.length === 0}
-            >
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Proceed to Checkout ({totalQty})
-              </span>
-            </button>
-
-            {/* Trust Badges */}
-            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span className="font-semibold">Secure Checkout</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-semibold">Easy Returns</span>
+              {/* Trust Badges */}
+              <div className="flex items-center justify-center gap-6 pt-4 mt-4 border-t border-gray-300">
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span className="font-medium">Secure Payment</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="font-medium">Easy Returns</span>
+                </div>
               </div>
             </div>
-
-            {/* Clear Cart */}
-            <button
-              className="w-full text-sm text-gray-600 hover:text-red-600 font-semibold transition-colors underline"
-              onClick={() => {
-                if (window.confirm("Are you sure you want to clear your cart?")) {
-                  clear();
-                  toast.success("Cart cleared");
-                }
-              }}
-            >
-              Clear Entire Cart
-            </button>
-          </div>
+          </aside>
         </div>
-        </aside>
       </div>
     </div>
   );
