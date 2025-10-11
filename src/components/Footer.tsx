@@ -151,8 +151,8 @@ export default function Footer() {
                     strokeWidth="2"
                   />
                 </svg>
-                <a href="tel:+923001234567" className="hover:text-white transition-colors">
-                  +92 300 1234567
+                <a href="tel:+923148426575" className="hover:text-white transition-colors">
+                  +92 314 8426575
                 </a>
               </div>
             </div>

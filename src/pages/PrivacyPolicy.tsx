@@ -100,7 +100,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="mt-3 pl-4 space-y-1 text-sm">
               <div>Email: info@rehmanstones.com</div>
-              <div>Phone: +92 300 1234567</div>
+              <div>Phone: +92 314 8426575</div>
               <div>Address: 19-A Model Town, Lahore, Pakistan</div>
             </div>
           </Section>

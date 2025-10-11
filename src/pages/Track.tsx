@@ -67,40 +67,6 @@ function writeOrders(orders: Order[]) {
   localStorage.setItem(LS_KEY, JSON.stringify(orders));
 }
 
-// ------- Demo orders (fallback when not found) -------
-const DEMO_ORDERS: Record<string, Order> = {
-  "RS-DEMO-1001": {
-    id: "RS-DEMO-1001",
-    status: "SHIPPED",
-    createdAt: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
-    customer: {
-      name: "Numan",
-      phone: "03xx-xxxxxxx",
-      address: "19-A Model Town",
-      city: "Lahore",
-    },
-    items: [
-      {
-        id: 1,
-        name: "Silver Band Ring",
-        qty: 1,
-        price: 3500,
-        image:
-          "https://images.unsplash.com/photo-1546456073-6712f79251bb?q=80&w=800",
-      },
-      {
-        id: 3,
-        name: "Amethyst Oval Gem",
-        qty: 1,
-        price: 7800,
-        image:
-          "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=800",
-      },
-    ],
-    shippingFee: 0,
-  },
-};
-
 function buildTimeline(order: Order): Required<Order>["timeline"] {
   // If explicit timeline present, use it.
   if (order.timeline) return order.timeline as Required<Order>["timeline"];
@@ -473,41 +439,10 @@ export default function Track() {
       return;
     }
 
-    // 2) Demo orders
-    if (DEMO_ORDERS[query]) {
-      setOrder(DEMO_ORDERS[query]);
-      setNotFound(false);
-      return;
-    }
-
     setOrder(null);
     setNotFound(true);
   }
 
-  // Simulate progressing status (for demo only)
-  function advanceStatus() {
-    if (!order) return;
-    const idx = STATUS_STEPS.findIndex((s) => s === order.status);
-    if (idx === -1 || idx === STATUS_STEPS.length - 1) return;
-    const next = STATUS_STEPS[idx + 1];
-    const updated: Order = {
-      ...order,
-      status: next,
-      timeline: {
-        ...(order.timeline ?? {}),
-        [next]: new Date().toISOString(),
-      },
-    };
-    setOrder(updated);
-
-    // persist if it's a "real" LS order
-    const stored = readOrders();
-    const pos = stored.findIndex((o) => o.id === updated.id);
-    if (pos >= 0) {
-      stored[pos] = updated;
-      writeOrders(stored);
-    }
-  }
 
   return (
     <>
@@ -566,7 +501,7 @@ export default function Track() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="text-xs text-blue-900">
-                    <span className="font-bold">Tip:</span> Your order ID was sent to your email. Try <code className="bg-blue-200 px-1.5 py-0.5 rounded text-xs font-mono font-bold">RS-DEMO-1001</code> for demo.
+                    <span className="font-bold">Tip:</span> Your order ID was sent to your email confirmation. Check your inbox or spam folder.
                   </div>
                 </div>
               )}
@@ -591,8 +526,14 @@ export default function Track() {
                   </div>
                   <div className="bg-white rounded-lg p-4 border border-red-200">
                     <div className="text-sm text-gray-700">
-                      <span className="font-bold text-black">Try our demo order:</span>{" "}
-                      <code className="bg-gray-100 px-3 py-1.5 rounded-lg font-mono font-bold text-black border border-gray-300">RS-DEMO-1001</code>
+                      <span className="font-bold text-black">Please check:</span>
+                      <ul className="mt-2 ml-4 space-y-1 list-disc">
+                        <li>Your order ID is correct (check your email confirmation)</li>
+                        <li>The order was placed through this website</li>
+                      </ul>
+                      <div className="mt-3 text-xs">
+                        Need help? <a href="/contact" className="text-blue-600 hover:underline font-semibold">Contact us</a>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -670,23 +611,6 @@ export default function Track() {
                 <div className="p-6 bg-gradient-to-b from-white to-gray-50">
                 {/* Stepper */}
                 <Stepper status={order.status} />
-
-                  {/* Demo-only: advance status */}
-                  {order.status !== "DELIVERED" &&
-                    order.status !== "CANCELLED" && (
-                      <button
-                        onClick={advanceStatus}
-                        className="mt-6 w-full px-4 py-2 text-xs font-bold rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-300 transition-all"
-                        title="Demo only: simulate next status"
-                      >
-                        <span className="flex items-center justify-center gap-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          Simulate Next Status
-                        </span>
-                      </button>
-                    )}
                 </div>
               </div>
 

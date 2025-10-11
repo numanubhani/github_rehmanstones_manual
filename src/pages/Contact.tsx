@@ -61,8 +61,8 @@ export default function Contact() {
             <ContactCard
               icon="phone"
               title="Phone"
-              lines={["+92 300 1234567", "+92 321 9876543"]}
-              action={{ label: "Call Now", href: "tel:+923001234567" }}
+              lines={["+92 314 8426575"]}
+              action={{ label: "Call Now", href: "tel:+923148426575" }}
             />
             <ContactCard
               icon="email"
@@ -83,10 +83,10 @@ export default function Contact() {
             <ContactCard
               icon="whatsapp"
               title="WhatsApp"
-              lines={["+92 300 1234567"]}
+              lines={["+92 314 8426575"]}
               action={{
                 label: "Chat on WhatsApp",
-                href: "https://wa.me/923001234567",
+                href: "https://wa.me/923148426575",
               }}
             />
 

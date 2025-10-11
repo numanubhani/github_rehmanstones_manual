@@ -12,8 +12,8 @@ export default function WhatsAppButton({ product, size, className = "" }: WhatsA
     const productUrl = window.location.href;
     const message = `Hi! I'm interested in ordering:\n\n*${product.name}*\n${size ? `Size: ${size}\n` : ""}Price: Rs. ${product.price.toLocaleString("en-PK")}\n\nProduct Link: ${productUrl}\n\nPlease let me know the availability and delivery details.`;
     
-    // Replace with your actual WhatsApp business number
-    const whatsappNumber = "923001234567"; // Format: country code + number (no + or spaces)
+    // WhatsApp business number
+    const whatsappNumber = "923148426575"; // Format: country code + number (no + or spaces)
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     
     window.open(whatsappUrl, "_blank");
@@ -36,7 +36,7 @@ export default function WhatsAppButton({ product, size, className = "" }: WhatsA
 // Floating WhatsApp button for general contact
 export function FloatingWhatsApp() {
   const handleClick = () => {
-    const whatsappNumber = "923001234567"; // Replace with your number
+    const whatsappNumber = "923148426575"; // WhatsApp business number
     const message = "Hi! I have a question about your products.";
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");

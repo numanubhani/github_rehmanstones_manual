@@ -17,12 +17,12 @@ export default function Wishlist() {
       image: item.image,
       category: item.category,
     });
-    toast.success("Added to cart!");
+    // Toast is already shown by CartContext, no need for duplicate
   };
 
-  const handleRemove = (id: string | number, name: string) => {
+  const handleRemove = (id: string | number) => {
     removeFromWishlist(id);
-    toast.success(`${name} removed from wishlist`);
+    // Toast is shown by the calling component, no need for duplicate
   };
 
   return (
@@ -40,7 +40,12 @@ export default function Wishlist() {
         </div>
         {wishlistItems.length > 0 && (
           <button
-            onClick={clearWishlist}
+            onClick={() => {
+              if (confirm("Are you sure you want to clear all items from your wishlist?")) {
+                clearWishlist();
+                toast.success("Wishlist cleared");
+              }
+            }}
             className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors"
           >
             Clear All
@@ -92,7 +97,10 @@ export default function Wishlist() {
                     Add to Cart
                   </button>
                   <button
-                    onClick={() => handleRemove(item.id, item.name)}
+                    onClick={() => {
+                      handleRemove(item.id);
+                      toast.success("Removed from wishlist");
+                    }}
                     className="w-10 h-10 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-lg transition-colors flex items-center justify-center"
                     aria-label="Remove from wishlist"
                   >

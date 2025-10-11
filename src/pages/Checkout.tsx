@@ -23,8 +23,8 @@ type PaymentMethod = "COD" | "ONLINE";
 
 const BANK = {
   name: "Meezan Bank",
-  accountNumber: "05820105879482",
-  accountTitle: "Numan",
+  accountNumber: "05820111753366",
+  accountTitle: "Rehman Stones",
 };
 
 const LS_KEY = "orders";
