@@ -30,7 +30,7 @@ export default function QuickView({ product, onClose }: Props) {
       image: product.images[0],
       category: product.category,
     });
-    toast.success("Added to cart!");
+    // Toast is already shown by CartContext, no need for duplicate
     onClose();
   };
 

@@ -65,8 +65,8 @@ export default function ProductPage() {
       image: product.images[0],
       category: product.category,
     }, qty);
-
-    toast.success("Added to cart!");
+    
+    // Toast is already shown by CartContext, no need for duplicate
   };
 
   const handleBuyNow = () => {
