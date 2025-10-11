@@ -63,10 +63,6 @@ function readOrders(): Order[] {
   }
 }
 
-function writeOrders(orders: Order[]) {
-  localStorage.setItem(LS_KEY, JSON.stringify(orders));
-}
-
 function buildTimeline(order: Order): Required<Order>["timeline"] {
   // If explicit timeline present, use it.
   if (order.timeline) return order.timeline as Required<Order>["timeline"];
