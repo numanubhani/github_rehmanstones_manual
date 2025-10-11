@@ -1,4 +1,4 @@
-export type FilterKey = "All" | "Rings" | "GemStones";
+export type FilterKey = "All" | "Rings" | "GemStones" | "Bracelets";
 
 export default function FilterTabs({
   value,
@@ -7,7 +7,7 @@ export default function FilterTabs({
   value: FilterKey;
   onChange: (v: FilterKey) => void;
 }) {
-  const tabs: FilterKey[] = ["All", "Rings", "GemStones"];
+  const tabs: FilterKey[] = ["All", "Rings", "GemStones", "Bracelets"];
   return (
     <div className="flex gap-1 sm:gap-2 border border-gray-200 dark:border-gray-600 rounded-lg p-1 bg-white dark:bg-gray-800 w-full sm:w-fit transition-colors">
       {tabs.map((t) => {

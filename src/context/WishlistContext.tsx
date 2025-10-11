@@ -7,7 +7,7 @@ type WishlistItem = {
   name: string;
   price: number;
   image: string;
-  category: "ring" | "gemstone";
+  category: "ring" | "gemstone" | "bracelet";
 };
 
 type WishlistContextType = {

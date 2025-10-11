@@ -8,7 +8,7 @@ export type RecentProduct = {
   name: string;
   price: number;
   image: string;
-  category: "ring" | "gemstone";
+  category: "ring" | "gemstone" | "bracelet";
   viewedAt: string;
 };
 

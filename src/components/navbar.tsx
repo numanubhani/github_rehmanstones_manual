@@ -9,8 +9,10 @@ import { useWishlist } from "../context/WishlistContext";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const productsRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
   const { totalQty } = useCart();
@@ -25,16 +27,20 @@ export default function Navbar() {
   const actionLinkBase =
     "px-3 py-2 rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700";
 
-  // Close profile menu on outside click / Esc
+  // Close menus on outside click / Esc
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
+      if (productsRef.current && !productsRef.current.contains(e.target as Node)) {
+        setProductsDropdownOpen(false);
+      }
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setMenuOpen(false);
+        setProductsDropdownOpen(false);
       }
     }
     document.addEventListener("click", onClick);
@@ -91,22 +97,92 @@ export default function Navbar() {
             >
               Home
             </NavLink>
-            <NavLink
-              to="/rings"
-              className={({ isActive }) =>
-                `${mainLinkBase} ${isActive ? mainLinkActive : mainLinkIdle}`
-              }
-            >
-              Rings
-            </NavLink>
-            <NavLink
-              to="/gemstones"
-              className={({ isActive }) =>
-                `${mainLinkBase} ${isActive ? mainLinkActive : mainLinkIdle}`
-              }
-            >
-              Gemstones
-            </NavLink>
+            
+            {/* Products Mega Dropdown */}
+            <div className="relative" ref={productsRef}>
+              <button
+                onClick={() => setProductsDropdownOpen(!productsDropdownOpen)}
+                onMouseEnter={() => setProductsDropdownOpen(true)}
+                className={`${mainLinkBase} ${mainLinkIdle} flex items-center gap-1`}
+              >
+                Products
+                <svg 
+                  className={`w-4 h-4 transition-transform ${productsDropdownOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Mega Dropdown */}
+              {productsDropdownOpen && (
+                <div 
+                  className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 fade-in"
+                  onMouseLeave={() => setProductsDropdownOpen(false)}
+                >
+                  <div className="p-2">
+                    <NavLink
+                      to="/rings"
+                      onClick={() => setProductsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white">Rings</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">925 Silver Rings</div>
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </NavLink>
+
+                    <NavLink
+                      to="/bracelets"
+                      onClick={() => setProductsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white">Bracelets</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Silver Bracelets</div>
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </NavLink>
+
+                    <NavLink
+                      to="/gemstones"
+                      onClick={() => setProductsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white">Gemstones</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Precious Gemstones</div>
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </NavLink>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -406,6 +482,13 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
             >
               Rings
+            </NavLink>
+            <NavLink
+              to="/bracelets"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
+              onClick={() => setOpen(false)}
+            >
+              Bracelets
             </NavLink>
             <NavLink
               to="/gemstones"

@@ -7,7 +7,7 @@ export type CartItem = {
   name: string;
   price: number;
   image: string;
-  category: "ring" | "gemstone";
+  category: "ring" | "gemstone" | "bracelet";
   qty: number;
 };
 

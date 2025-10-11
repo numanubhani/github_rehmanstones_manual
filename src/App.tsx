@@ -6,6 +6,7 @@ import { FloatingWhatsApp } from "./components/WhatsAppButton";
 import Home from "./pages/Home";
 import Rings from "./pages/Rings";
 import Gemstones from "./pages/Gemstones";
+import Bracelets from "./pages/Bracelets";
 import Track from "./pages/Track";
 import Login from "./pages/Login";
 import Cart from "./pages/Cart";
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/rings" element={<Rings />} />
           <Route path="/gemstones" element={<Gemstones />} />
+          <Route path="/bracelets" element={<Bracelets />} />
           <Route path="/track" element={<Track />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Cart />} />

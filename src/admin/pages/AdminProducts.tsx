@@ -7,7 +7,7 @@ type Product = {
   price: number;
   oldPrice?: number;
   images: string[];
-  category: "ring" | "gemstone";
+  category: "ring" | "gemstone" | "bracelet";
   brand: string;
   rating?: number;
   ratingCount?: number;
@@ -56,7 +56,7 @@ export default function AdminProducts() {
   const importRef = useRef<HTMLInputElement | null>(null);
 
   const [query, setQuery] = useState("");
-  const [cat, setCat] = useState<"all" | "ring" | "gemstone">("all");
+  const [cat, setCat] = useState<"all" | "ring" | "gemstone" | "bracelet">("all");
   const [sort, setSort] = useState<"newest" | "priceAsc" | "priceDesc" | "name">("newest");
   const [editing, setEditing] = useState<Product | null>(null);
 
@@ -169,7 +169,7 @@ export default function AdminProducts() {
           price: Number(p.price ?? 0),
           oldPrice: p.oldPrice ? Number(p.oldPrice) : undefined,
           images: Array.isArray(p.images) ? p.images : p.image ? [p.image] : [],
-          category: p.category === "gemstone" ? "gemstone" : "ring",
+          category: p.category === "gemstone" ? "gemstone" : p.category === "bracelet" ? "bracelet" : "ring",
           brand: String(p.brand ?? "Rehman Stones"),
           rating: p.rating ? Number(p.rating) : undefined,
           ratingCount: p.ratingCount ? Number(p.ratingCount) : undefined,
@@ -359,9 +359,10 @@ export default function AdminProducts() {
                 <select
                   className="w-full rounded-xl ring-1 ring-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-black bg-white"
                   value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value as "ring" | "gemstone" })}
+                  onChange={(e) => setForm({ ...form, category: e.target.value as "ring" | "gemstone" | "bracelet" })}
                 >
                   <option value="ring">Ring</option>
+                  <option value="bracelet">Bracelet</option>
                   <option value="gemstone">Gemstone</option>
                 </select>
               </div>
@@ -688,9 +689,10 @@ export default function AdminProducts() {
                   value={cat}
                   onChange={(e) => setCat(e.target.value as any)}
                 >
-                  <option value="all">All Categories</option>
-                  <option value="ring">Rings</option>
-                  <option value="gemstone">Gemstones</option>
+                <option value="all">All Categories</option>
+                <option value="ring">Rings</option>
+                <option value="bracelet">Bracelets</option>
+                <option value="gemstone">Gemstones</option>
                 </select>
                 <select
                   className="rounded-xl ring-1 ring-gray-300 px-4 py-2.5 bg-white outline-none focus:ring-2 focus:ring-black"
@@ -935,6 +937,7 @@ function EditModal({ product, onClose, onSave }: { product: Product; onClose: ()
                   onChange={(e) => setState({ ...state, category: e.target.value as any })}
                 >
                   <option value="ring">Ring</option>
+                  <option value="bracelet">Bracelet</option>
                   <option value="gemstone">Gemstone</option>
                 </select>
               </div>

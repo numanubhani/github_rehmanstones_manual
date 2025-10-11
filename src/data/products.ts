@@ -6,7 +6,7 @@ export type Product = {
   price: number;
   oldPrice?: number;
   images: string[];
-  category: "ring" | "gemstone";
+  category: "ring" | "gemstone" | "bracelet";
   brand: string;
   rating?: number;
   ratingCount?: number;
@@ -16,7 +16,7 @@ export type Product = {
   specs?: Record<string, string>;
 
   /** ---------- Admin / Inventory helpers (optional) ---------- */
-  sizes?: number[];          // rings only (11–40)
+  sizes?: number[];          // rings & bracelets (11–40)
   stock?: number;            // total available units
   active?: boolean;          // toggle visibility
   createdAt?: string;        // ISO timestamp

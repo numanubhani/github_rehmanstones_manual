@@ -7,7 +7,7 @@ export type Coupon = {
   type: "percent" | "flat";            // % or fixed amount
   value: number;                       // 10 -> 10%  |  500 -> Rs. 500
   minSubtotal?: number;                // optional min spend (on eligible items)
-  category?: "ring" | "gemstone";      // optional category restriction
+  category?: "ring" | "gemstone" | "bracelet";      // optional category restriction
   maxDiscount?: number;                // cap for percent coupons
   expiresAt?: string;                  // ISO date; optional
 };
