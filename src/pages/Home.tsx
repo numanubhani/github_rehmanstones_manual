@@ -180,26 +180,26 @@ export default function Home() {
       <div className="space-y-10">
         {/* Clean Hero Section */}
       {!searchQuery && (
-        <div className="relative bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden transition-colors">
           <div className="grid md:grid-cols-2 gap-0">
             {/* Left: Content */}
             <div className="px-4 py-8 sm:px-6 sm:py-10 md:px-8 md:py-16 flex flex-col justify-center order-2 md:order-1">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black leading-tight mb-3 sm:mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black dark:text-white leading-tight mb-3 sm:mb-4">
                 Premium Silver Jewelry
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
                 Authentic 925 silver rings and certified gemstones. Handcrafted excellence, delivered nationwide.
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                 <a
                   href="#products"
-                  className="inline-block text-center bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="inline-block text-center bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Shop Collection
                 </a>
                 <a
                   href="/about"
-                  className="inline-block text-center bg-gray-100 hover:bg-gray-200 text-black px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="inline-block text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-black dark:text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Learn More
                 </a>
@@ -207,7 +207,7 @@ export default function Home() {
             </div>
 
             {/* Right: Carousel (admin-managed) */}
-            <div className="relative h-56 sm:h-64 md:h-auto bg-gray-100 overflow-hidden order-1 md:order-2">
+            <div className="relative h-56 sm:h-64 md:h-auto bg-gray-100 dark:bg-gray-900 overflow-hidden order-1 md:order-2">
               {/* Slides */}
               <div className="relative w-full h-full min-h-[300px] md:min-h-[400px]">
                 {adminSlides.map((s, index) => (
@@ -281,11 +281,11 @@ export default function Home() {
       
       {/* Search results header */}
       {searchQuery && (
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-2xl font-bold">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+          <h2 className="text-2xl font-bold text-black dark:text-white">
             Search results for "{searchQuery}"
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             {display.length} {display.length === 1 ? "product" : "products"} found
           </p>
         </div>
@@ -328,8 +328,8 @@ export default function Home() {
       <div id="products" className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">Latest Products</h2>
-            <p className="text-gray-500 text-sm mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-black dark:text-white">Latest Products</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
               {display.length} products found
             </p>
           </div>
@@ -337,7 +337,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-semibold text-sm transition-colors text-gray-900 dark:text-gray-100"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -345,13 +345,13 @@ export default function Home() {
               Filters
             </button>
             <FilterTabs value={filter} onChange={setFilter} />
-            <div className="hidden sm:block h-6 w-px bg-gray-200" />
+            <div className="hidden sm:block h-6 w-px bg-gray-200 dark:bg-gray-700" />
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600 whitespace-nowrap">Sort</label>
+              <label className="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">Sort</label>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="rounded-lg ring-1 ring-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black flex-1 sm:flex-initial"
+                className="rounded-lg ring-1 ring-gray-200 dark:ring-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:focus:ring-white flex-1 sm:flex-initial text-gray-900 dark:text-gray-100"
               >
                 <option value="Newest">Newest</option>
                 <option value="PriceLow">Price: Low to High</option>
@@ -364,11 +364,11 @@ export default function Home() {
 
         {/* Advanced Filters */}
         {showFilters && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-lg">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg transition-colors">
             <div className="grid sm:grid-cols-2 gap-6">
               {/* Price Range */}
               <div>
-                <label className="block font-bold text-sm text-black mb-3">Price Range</label>
+                <label className="block font-bold text-sm text-black dark:text-white mb-3">Price Range</label>
                 <div className="space-y-3">
                   <input
                     type="range"
@@ -380,15 +380,15 @@ export default function Home() {
                     className="w-full"
                   />
                   <div className="flex justify-between text-sm">
-                    <span className="font-semibold">Rs. 0</span>
-                    <span className="font-bold text-black">Rs. {priceRange[1].toLocaleString()}</span>
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">Rs. 0</span>
+                    <span className="font-bold text-black dark:text-white">Rs. {priceRange[1].toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
               {/* Minimum Rating */}
               <div>
-                <label className="block font-bold text-sm text-black mb-3">Minimum Rating</label>
+                <label className="block font-bold text-sm text-black dark:text-white mb-3">Minimum Rating</label>
                 <div className="flex gap-2">
                   {[0, 3, 4, 4.5].map((rating) => (
                     <button
@@ -396,8 +396,8 @@ export default function Home() {
                       onClick={() => setMinRating(rating)}
                       className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all ${
                         minRating === rating
-                          ? "bg-black text-white"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
+                          : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
                       }`}
                     >
                       {rating === 0 ? "All" : `${rating}★+`}
@@ -414,7 +414,7 @@ export default function Home() {
                 setMinRating(0);
                 toast.success("Filters reset");
               }}
-              className="mt-4 w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black rounded-lg font-semibold text-sm transition-colors"
+              className="mt-4 w-full sm:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-black dark:text-white rounded-lg font-semibold text-sm transition-colors"
             >
               Reset Filters
             </button>
@@ -443,7 +443,7 @@ export default function Home() {
 function Card({ children }: { children: React.ReactNode }) {
   // Subtle, professional – no heavy elevation, just a gentle ring
   return (
-    <div className="bg-white rounded-xl ring-1 ring-gray-200 p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl ring-1 ring-gray-200 dark:ring-gray-700 p-4 transition-colors">
       {children}
     </div>
   );
@@ -462,7 +462,7 @@ function Icon({ name }: { name: "truck" | "shield" | "refresh" }) {
       height="22"
       viewBox="0 0 24 24"
       fill="none"
-      className="text-gray-900"
+      className="text-gray-900 dark:text-gray-100"
     >
       <path d={path} stroke="currentColor" strokeWidth="1.8" />
     </svg>

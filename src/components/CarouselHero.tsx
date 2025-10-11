@@ -5,6 +5,7 @@ type Slide = {
   image: string;
   headline?: string;
   subhead?: string;
+  type?: "image" | "video";
 };
 
 export default function CarouselHero({ slides }: { slides: Slide[] }) {
@@ -46,11 +47,23 @@ export default function CarouselHero({ slides }: { slides: Slide[] }) {
       >
         {slides.map((s) => (
           <div key={s.id} className="relative min-w-full h-full">
-            <img
-              src={s.image}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            {(s.type === "video") ? (
+              <video
+                key={`video-${s.id}`}
+                src={s.image}
+                className="absolute inset-0 w-full h-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={s.image}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
             {/* subtle dark veil for readability */}
             <div className="absolute inset-0 bg-black/30" />
 

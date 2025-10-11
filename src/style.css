@@ -14,6 +14,19 @@
   --brand-text-light: #6B7280;
 }
 
+/* Dark mode variables */
+.dark {
+  --brand-primary: #FFFFFF;
+  --brand-secondary: #E5E7EB;
+  --brand-accent: #D1D5DB;
+  --brand-accent-light: #9CA3AF;
+  --brand-light: #1F2937;
+  --brand-gray: #6B7280;
+  --brand-border: #374151;
+  --brand-text: #F9FAFB;
+  --brand-text-light: #9CA3AF;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

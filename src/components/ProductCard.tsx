@@ -35,7 +35,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
     : 0;
 
   return (
-    <div className="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 hover:-translate-y-2 h-full flex flex-col border border-gray-200">
+    <div className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 hover:-translate-y-2 h-full flex flex-col border border-gray-200 dark:border-gray-700">
       {/* Discount badge */}
       {discount > 0 && (
         <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
@@ -104,7 +104,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
       />
 
       {/* Image with shimmer loading */}
-      <div className="relative h-48 sm:h-56 bg-white overflow-hidden">
+      <div className="relative h-48 sm:h-56 bg-white dark:bg-gray-900 overflow-hidden">
         {!imageLoaded && (
           <div className="absolute inset-0 shimmer" />
         )}
@@ -119,22 +119,22 @@ export default function ProductCard({ product, onQuickView }: { product: Product
         />
         
         {/* Subtle overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/5 dark:from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
       {/* Body */}
       <div className="p-3 sm:p-4 flex flex-col flex-1 relative z-[2]">
         {/* Category badge */}
         <div className="mb-2 sm:mb-3">
-          <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-full bg-gray-100 text-gray-700">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gray-600"></div>
+          <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gray-600 dark:bg-gray-400"></div>
             {product.category}
           </span>
         </div>
 
         {/* Title */}
         <h3
-          className="text-sm sm:text-base font-bold text-gray-900 leading-tight min-h-[40px] sm:min-h-[44px] mb-2 sm:mb-3 group-hover:text-black transition-colors"
+          className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100 leading-tight min-h-[40px] sm:min-h-[44px] mb-2 sm:mb-3 group-hover:text-black dark:group-hover:text-white transition-colors"
           style={{
             display: "-webkit-box",
             WebkitLineClamp: 2,
@@ -174,11 +174,11 @@ export default function ProductCard({ product, onQuickView }: { product: Product
         {/* Price */}
         <div className="mt-auto">
           <div className="flex items-baseline gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-            <span className="text-lg sm:text-2xl font-black text-gray-900">
+            <span className="text-lg sm:text-2xl font-black text-gray-900 dark:text-gray-100">
               Rs.{product.price.toLocaleString()}
             </span>
             {product.oldPrice && (
-              <span className="text-xs sm:text-sm line-through text-gray-500">
+              <span className="text-xs sm:text-sm line-through text-gray-500 dark:text-gray-400">
                 Rs.{product.oldPrice.toLocaleString()}
               </span>
             )}
@@ -191,7 +191,7 @@ export default function ProductCard({ product, onQuickView }: { product: Product
               e.stopPropagation();
               handleAdd();
             }}
-            className="w-full py-2 sm:py-3 px-3 sm:px-4 bg-black hover:bg-gray-800 text-white text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+            className="w-full py-2 sm:py-3 px-3 sm:px-4 bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
           >
             {product.category === "ring" ? "Choose Size" : "Add to Cart"}
           </button>

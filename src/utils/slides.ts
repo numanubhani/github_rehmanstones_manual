@@ -1,4 +1,10 @@
-export type Slide = { id: string; image: string; headline: string; subhead: string };
+export type Slide = { 
+  id: string; 
+  image: string; 
+  headline: string; 
+  subhead: string;
+  type?: "image" | "video";
+};
 const KEY = "admin-slides";
 
 export function getSlides(defaultSlides: Slide[]) {

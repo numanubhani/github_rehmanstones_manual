@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
@@ -26,21 +26,34 @@ import AdminProducts from "./admin/pages/AdminProducts";
 import AdminCarousel from "./admin/pages/AdminCarousel";
 import AdminReports from "./admin/pages/AdminReports";
 import AdminSettings from "./admin/pages/AdminSettings";
+import ProductPreview from "./admin/pages/ProductPreview";
 import SiteModal from "./components/SiteModal";
 import OrderHistory from "./admin/pages/OrderHistory";
 import Wishlist from "./pages/Wishlist";
 import Profile from "./pages/Profile";
 
 export default function App() {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <ScrollToTop />
-      <Navbar />
-      {/* Global admin-controlled promo modal */}
-      <SiteModal />
+  const location = useLocation();
+  const isPreviewPage = location.pathname === '/admin/preview-product';
 
-      <main className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
+  return (
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 transition-colors">
+      <ScrollToTop />
+      
+      {/* Conditional Navbar and SiteModal - hide on preview page */}
+      {!isPreviewPage && (
+        <>
+          <Navbar />
+          <SiteModal />
+        </>
+      )}
+
+      <main className={isPreviewPage ? "" : "max-w-7xl mx-auto px-4 py-6 flex-1 w-full"}>
         <Routes>
+          {/* Standalone Preview Page */}
+          <Route path="/admin/preview-product" element={<ProductPreview />} />
+          
+          {/* Regular Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/rings" element={<Rings />} />
           <Route path="/gemstones" element={<Gemstones />} />
@@ -75,8 +88,13 @@ export default function App() {
         </Routes>
       </main>
       
-      <Footer />
-      <FloatingWhatsApp />
+      {/* Conditional Footer and WhatsApp - hide on preview page */}
+      {!isPreviewPage && (
+        <>
+          <Footer />
+          <FloatingWhatsApp />
+        </>
+      )}
     </div>
   );
 }

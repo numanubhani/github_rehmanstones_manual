@@ -5,6 +5,7 @@ import InstallAppButton from "./InstallAppButton";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -16,14 +17,15 @@ export default function Navbar() {
   const { totalQty } = useCart();
   const { user, logout } = useAuth(); // <-- expects shape like: { name, email, role: 'user' | 'admin' }
   const { wishlistItems } = useWishlist();
+  const { theme, toggleTheme } = useTheme();
 
   const mainLinkBase =
     "relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300";
-  const mainLinkActive = "text-black bg-gray-100";
-  const mainLinkIdle = "text-gray-600 hover:text-black hover:bg-gray-50";
+  const mainLinkActive = "text-black dark:text-white bg-gray-100 dark:bg-gray-700";
+  const mainLinkIdle = "text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800";
 
   const actionLinkBase =
-    "px-3 py-2 rounded-lg transition-all duration-300 hover:bg-gray-100";
+    "px-3 py-2 rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700";
 
   // Close profile menu on outside click / Esc
   useEffect(() => {
@@ -68,13 +70,13 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
       <nav className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
         {/* Left: Brand */}
         <div className="flex items-center gap-3 flex-1">
           <Link
             to="/"
-            className="text-2xl font-bold tracking-wide select-none text-black hover:text-gray-700 transition-colors"
+            className="text-2xl font-bold tracking-wide select-none text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             aria-label="Rehman Stones — Home"
           >
             <span className="font-black">RS</span>
@@ -118,10 +120,10 @@ export default function Navbar() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:border-black transition-colors text-sm bg-gray-50"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:border-black dark:focus:border-white transition-colors text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
             />
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
               width="18"
               height="18"
               viewBox="0 0 24 24"
@@ -136,10 +138,28 @@ export default function Navbar() {
         {/* Right actions (desktop) */}
         <div className="hidden sm:flex items-center gap-2">
 
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`${actionLinkBase} relative group`}
+            aria-label="Toggle theme"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+          </button>
+
           <NavLink
             to="/track"
             className={({ isActive }) =>
-              `${actionLinkBase} ${isActive ? "bg-gray-100 text-black" : ""}`
+              `${actionLinkBase} ${isActive ? "bg-gray-100 dark:bg-gray-700 text-black dark:text-white" : ""}`
             }
           >
             Track Order
@@ -152,7 +172,7 @@ export default function Navbar() {
           <NavLink
             to="/wishlist"
             className={({ isActive }) =>
-              `relative ${actionLinkBase} ${isActive ? "bg-gray-100 text-black" : ""}`
+              `relative ${actionLinkBase} ${isActive ? "bg-gray-100 dark:bg-gray-700 text-black dark:text-white" : ""}`
             }
             aria-label="Wishlist"
             title="Wishlist"
@@ -178,7 +198,7 @@ export default function Navbar() {
           <NavLink
             to="/cart"
             className={({ isActive }) =>
-              `relative ${actionLinkBase} ${isActive ? "bg-gray-100 text-black" : ""}`
+              `relative ${actionLinkBase} ${isActive ? "bg-gray-100 dark:bg-gray-700 text-black dark:text-white" : ""}`
             }
             aria-label="Cart"
             title="Cart"
@@ -199,7 +219,7 @@ export default function Navbar() {
               <circle cx="18" cy="20" r="1.6" fill="currentColor" />
             </svg>
             {totalQty > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 text-[10px] leading-none px-2 py-1 rounded-full bg-black text-white font-bold">
+              <span className="absolute -top-1.5 -right-1.5 text-[10px] leading-none px-2 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold">
                 {totalQty}
               </span>
             )}
@@ -210,8 +230,8 @@ export default function Navbar() {
               <NavLink
                 to="/login"
                 className={({ isActive }) =>
-                  `px-5 py-2.5 rounded-lg text-white font-semibold transition-all duration-300 ${
-                    isActive ? "bg-gray-800" : "bg-black hover:bg-gray-800"
+                  `px-5 py-2.5 rounded-lg text-white dark:text-black bg-black dark:bg-white font-semibold transition-all duration-300 ${
+                    isActive ? "bg-gray-800 dark:bg-gray-200" : "hover:bg-gray-800 dark:hover:bg-gray-200"
                   }`
                 }
               >
@@ -221,7 +241,7 @@ export default function Navbar() {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
@@ -229,17 +249,17 @@ export default function Navbar() {
                   <img
                     src={user.profilePicture}
                     alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover border border-gray-300"
+                    className="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600"
                   />
                 ) : (
-                  <span className="w-8 h-8 rounded-full bg-black text-white grid place-items-center text-xs font-bold">
+                  <span className="w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black grid place-items-center text-xs font-bold">
                     {initials}
                   </span>
                 )}
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                   {firstName || user.name || "Account"}
                 </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-400">
                   <path
                     d="M6 9l6 6 6-6"
                     stroke="currentColor"
@@ -251,17 +271,17 @@ export default function Navbar() {
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-3 w-64 rounded-lg bg-white border border-gray-200 shadow-lg overflow-hidden fade-in"
+                  className="absolute right-0 mt-3 w-64 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden fade-in"
                 >
                   <div className="px-3 py-2">
-                    <div className="text-xs text-gray-500">Signed in as</div>
-                    <div className="text-sm font-medium truncate">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Signed in as</div>
+                    <div className="text-sm font-medium truncate text-gray-900 dark:text-gray-100">
                       {user.name || user.email}
                     </div>
                   </div>
-                  <div className="h-px bg-gray-100" />
+                  <div className="h-px bg-gray-100 dark:bg-gray-700" />
                   <button
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                     onClick={() => {
                       setMenuOpen(false);
                       navigate("/profile");
@@ -270,7 +290,7 @@ export default function Navbar() {
                     My Profile
                   </button>
                   <button
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                     onClick={() => {
                       setMenuOpen(false);
                       navigate("/orders");
@@ -280,7 +300,7 @@ export default function Navbar() {
                   </button>
                   {user.role === "admin" && (
                     <button
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                       onClick={() => {
                         setMenuOpen(false);
                         navigate("/admin");
@@ -289,9 +309,9 @@ export default function Navbar() {
                       Admin Panel
                     </button>
                   )}
-                  <div className="h-px bg-gray-100" />
+                  <div className="h-px bg-gray-100 dark:bg-gray-700" />
                   <button
-                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                     onClick={handleLogout}
                   >
                     Logout
@@ -304,7 +324,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded border border-black/10 bg-white/60 backdrop-blur-md"
+          className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded border border-black/10 dark:border-white/10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md text-black dark:text-white"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
@@ -327,43 +347,65 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="sm:hidden border-t border-black/10 bg-white/80 backdrop-blur-md">
+        <div className="sm:hidden border-t border-black/10 dark:border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md">
           <div className="px-4 py-3 flex flex-col">
+            {/* Dark mode toggle (mobile) */}
+            <button
+              onClick={toggleTheme}
+              className="mb-3 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-gray-900 dark:text-gray-100"
+            >
+              {theme === "dark" ? (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                  <span>Dark Mode</span>
+                </>
+              )}
+            </button>
+
             {/* Auth section (mobile) */}
             {!user ? (
               <NavLink
                 to="/login"
-                className="mb-2 px-3 py-2 rounded bg-black text-white text-center hover:opacity-90"
+                className="mb-2 px-3 py-2 rounded bg-black dark:bg-white text-white dark:text-black text-center hover:opacity-90"
                 onClick={() => setOpen(false)}
               >
                 Login
               </NavLink>
             ) : (
-              <div className="mb-2 rounded-lg ring-1 ring-gray-200 p-3 bg-white">
+              <div className="mb-2 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700 p-3 bg-white dark:bg-gray-800">
                 <div className="flex items-center gap-3">
                   {user.profilePicture ? (
                     <img
                       src={user.profilePicture}
                       alt={user.name}
-                      className="w-9 h-9 rounded-full object-cover border border-gray-300"
+                      className="w-9 h-9 rounded-full object-cover border border-gray-300 dark:border-gray-600"
                     />
                   ) : (
-                    <span className="w-9 h-9 rounded-full bg-black text-white grid place-items-center text-sm">
+                    <span className="w-9 h-9 rounded-full bg-black dark:bg-white text-white dark:text-black grid place-items-center text-sm">
                       {initials}
                     </span>
                   )}
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold truncate">
+                    <div className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">
                       {user.name}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
                       {user.email}
                     </div>
                   </div>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <button
-                    className="px-3 py-2 rounded ring-1 ring-gray-200 hover:bg-gray-50 text-sm"
+                    className="px-3 py-2 rounded ring-1 ring-gray-200 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
                     onClick={() => {
                       setOpen(false);
                       navigate("/orders");
@@ -373,7 +415,7 @@ export default function Navbar() {
                   </button>
                   {user.role === "admin" && (
                     <button
-                      className="px-3 py-2 rounded ring-1 ring-gray-200 hover:bg-gray-50 text-sm"
+                      className="px-3 py-2 rounded ring-1 ring-gray-200 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
                       onClick={() => {
                         setOpen(false);
                         navigate("/admin");
@@ -383,7 +425,7 @@ export default function Navbar() {
                     </button>
                   )}
                   <button
-                    className="col-span-2 px-3 py-2 rounded ring-1 ring-red-200 text-red-600 hover:bg-red-50 text-sm"
+                    className="col-span-2 px-3 py-2 rounded ring-1 ring-red-200 dark:ring-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm"
                     onClick={handleLogout}
                   >
                     Logout
@@ -396,21 +438,21 @@ export default function Navbar() {
             <NavLink
               to="/"
               end
-              className="px-3 py-2 rounded hover:bg-black/5"
+              className="px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
               onClick={() => setOpen(false)}
             >
               Home
             </NavLink>
             <NavLink
               to="/rings"
-              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
               onClick={() => setOpen(false)}
             >
               Rings
             </NavLink>
             <NavLink
               to="/gemstones"
-              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
               onClick={() => setOpen(false)}
             >
               Gemstones
@@ -419,20 +461,32 @@ export default function Navbar() {
             {/* Actions */}
             <NavLink
               to="/track"
-              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
               onClick={() => setOpen(false)}
             >
               Track Order
             </NavLink>
             <NavLink
               to="/cart"
-              className="mt-1 px-3 py-2 rounded hover:bg-black/5"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
               onClick={() => setOpen(false)}
             >
               Cart{" "}
               {totalQty > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none px-1.5 py-1 rounded-full bg-black text-white">
+                <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none px-1.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black">
                   {totalQty}
+                </span>
+              )}
+            </NavLink>
+            <NavLink
+              to="/wishlist"
+              className="mt-1 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100"
+              onClick={() => setOpen(false)}
+            >
+              Wishlist{" "}
+              {wishlistItems.length > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none px-1.5 py-1 rounded-full bg-red-500 text-white">
+                  {wishlistItems.length}
                 </span>
               )}
             </NavLink>

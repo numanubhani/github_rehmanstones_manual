@@ -124,7 +124,7 @@ export default function Cart() {
           keywords="shopping cart, silver jewelry cart, checkout"
         />
         <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center shadow-lg">
+        <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center shadow-lg transition-colors">
           <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
             <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -164,7 +164,7 @@ export default function Cart() {
         description="Review your items and proceed to secure checkout. Premium 925 silver jewelry with cash on delivery available."
         keywords="shopping cart, jewelry cart, silver rings cart"
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white transition-colors">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6 pb-4 border-b border-gray-200">
@@ -173,7 +173,7 @@ export default function Cart() {
         </div>
 
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-[1fr_380px]">
-          {/* LEFT: items list */}
+      {/* LEFT: items list */}
           <div>
             {/* Top bar: select all + delete */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-gray-200">
@@ -208,16 +208,16 @@ export default function Cart() {
               {items.map((it) => (
                 <div
                   key={it.id}
-                  className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200"
+                  className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 transition-colors"
                 >
                   <div className="flex gap-3 sm:gap-4 flex-1">
-                    {/* checkbox */}
-                    <input
-                      type="checkbox"
+                {/* checkbox */}
+                <input
+                  type="checkbox"
                       className="w-4 h-4 mt-1 rounded cursor-pointer accent-black flex-shrink-0"
-                      checked={selected.has(it.id)}
-                      onChange={() => toggleOne(it.id)}
-                    />
+                  checked={selected.has(it.id)}
+                  onChange={() => toggleOne(it.id)}
+                />
 
                     {/* image */}
                     <Link to={`/product/${it.id}`} className="relative group block flex-shrink-0">
@@ -403,9 +403,9 @@ export default function Cart() {
                   <span className="font-medium">Easy Returns</span>
                 </div>
               </div>
-            </div>
-          </aside>
         </div>
+      </aside>
+    </div>
       </div>
     </div>
     </>
